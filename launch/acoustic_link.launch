@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="acoustic_link" name="publisher" type="publisher">
+  </node>
+  <node pkg="acoustic_link" name="topic_out_node" type="topic_out_node" output="screen">
+  </node>
+</launch>
