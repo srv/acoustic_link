@@ -3,39 +3,45 @@ topics:
     t0:
         topic_id: 20
         topic_name: cola2_control/thrusters_data
-        message_type: cola2_control/Setpoints
+        message_type: control/Setpoints
         destination_address: 1
         drop: 20
     t1:
         topic_id: 21
         topic_name: cola2_safety/emus_bms
-        message_type: cola2_safety/EMUSBMS
+        message_type: safety/EMUSBMS
         destination_address: 1
         drop: 20
-#    t2:
-#        topic_id: 22
-#        topic_name: cola2_navigation/nav_sts
-#        message_type: auv_msgs/NavSts
-#        destination_address: 1
-#        drop: 20
-#    t3:
-#        topic_id: 23
-#        topic_name: slam/loop_closings
-#        message_type: std_msgs/String
-#        destination_address: 1
-#        drop: 1
-#    t4:
-#        topic_id: 24
-#        topic_name: slam/keyframes
-#        message_type: std_msgs/String
-#        destination_address: 1
-#        drop: 1
-#    t5:
-#        topic_id: 25
-#        topic_name: /usbl_position/modem_position
-#        message_type: geometry_msgs/PoseWithCovarianceStamped
-#        destination_address: 2
-#        drop: 1
+    t2:
+        topic_id: 22
+        topic_name: cola2_navigation/nav_sts
+        message_type: auv_msgs/NavSts
+        destination_address: 1
+        drop: 20
+    t3:
+        topic_id: 23
+        topic_name: slam/loop_closings
+        message_type: std_msgs/String
+        destination_address: 1
+        drop: 1
+    t4:
+        topic_id: 24
+        topic_name: slam/keyframes
+        message_type: std_msgs/String
+        destination_address: 1
+        drop: 1
+    t5:
+        topic_id: 25
+        topic_name: /usbl_position/modem_position
+        message_type: geometry_msgs/PoseWithCovarianceStamped
+        destination_address: 2
+        drop: 1
+    t6:
+        topic_id: 26
+        topic_name: /sensors/depth_raw
+        message_type: geometry_msgs/PoseWithCovarianceStamped
+        destination_address: 2
+        drop: 1
 services:
     s0:
         service_id: 50

@@ -3,13 +3,13 @@ topics:
     t0:
         topic_id: 20
         topic_name: cola2_control/thrusters_data2
-        message_type: cola2_control/Setpoints
+        message_type: control/Setpoints
         destination_address: 1
         drop: 20
     t1:
         topic_id: 21
         topic_name: cola2_safety/emus_bms2
-        message_type: cola2_safety/EMUSBMS
+        message_type: safety/EMUSBMS
         destination_address: 1
         drop: 20
     t2:
@@ -33,6 +33,12 @@ topics:
     t5:
         topic_id: 25
         topic_name: /usbl_position/modem_position2
+        message_type: geometry_msgs/PoseWithCovarianceStamped
+        destination_address: 2
+        drop: 1
+    t6:
+        topic_id: 26
+        topic_name: /sensors/depth_raw
         message_type: geometry_msgs/PoseWithCovarianceStamped
         destination_address: 2
         drop: 1

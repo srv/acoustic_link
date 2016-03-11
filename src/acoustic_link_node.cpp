@@ -14,8 +14,8 @@
 #include <rosserial_msgs/Log.h>
 #include <std_msgs/Time.h>
 
-#include "cola2_control/Setpoints.h"
-#include "cola2_safety/EMUSBMS.h"
+#include "control/Setpoints.h"
+#include "safety/EMUSBMS.h"
 #include "auv_msgs/NavSts.h"
 #include "std_msgs/String.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
@@ -51,7 +51,7 @@ public:
   }
 
 //CALLBACKS
-  void thrusters_dataCallback(const cola2_control::Setpoints& msg)
+  void thrusters_dataCallback(const control::Setpoints& msg)
   {
     evologics_ros::AcousticModemPayload acoustic_msg;
     acoustic_msg.header = msg.header;
@@ -69,7 +69,7 @@ public:
     else ROS_WARN("Payload size bigger than expected:  thrusters_data");
   }
 
-  void emus_bmsCallback(const cola2_safety::EMUSBMS& msg)
+  void emus_bmsCallback(const safety::EMUSBMS& msg)
   {
     evologics_ros::AcousticModemPayload acoustic_msg;
     acoustic_msg.header = msg.header;
@@ -95,12 +95,12 @@ public:
 
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(topic_info_nav_sts.topic_id)); 
-    list.push_back(boost::lexical_cast<std::string>((float)msg.global_position.latitude));
-    list.push_back(boost::lexical_cast<std::string>((float)msg.global_position.longitude));
+    //list.push_back(boost::lexical_cast<std::string>((float)msg.global_position.latitude));
+    //list.push_back(boost::lexical_cast<std::string>((float)msg.global_position.longitude));
     list.push_back(boost::lexical_cast<std::string>((float)msg.position.north));
     list.push_back(boost::lexical_cast<std::string>((float)msg.position.east));
     list.push_back(boost::lexical_cast<std::string>((float)msg.position.depth));
-    list.push_back(boost::lexical_cast<std::string>((float)msg.altitude));
+    //list.push_back(boost::lexical_cast<std::string>((float)msg.altitude));
     acoustic_msg.payload = boost::algorithm::join(list, ",");
     
     if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
@@ -201,7 +201,7 @@ private:
 
   void thrusters_dataParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, const std::vector<std::string> data)
   {
-    cola2_control::Setpoints msg;
+    control::Setpoints msg;
     msg.header = acoustic_msg->header;
     msg.setpoints.resize(data.size());
     msg.setpoints[0] = atof(data[0].c_str());
@@ -213,7 +213,7 @@ private:
 
   void emus_bmsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, const std::vector<std::string> data)
   {
-    cola2_safety::EMUSBMS msg;
+    safety::EMUSBMS msg;
     msg.header = acoustic_msg->header;
     msg.stateOfCharge = atof(data[0].c_str());
     pub_emus_bms_.publish(msg);
@@ -224,12 +224,12 @@ private:
   {
     auv_msgs::NavSts msg;
     msg.header = acoustic_msg->header;
-    msg.global_position.latitude = atof(data[0].c_str());
-    msg.global_position.longitude = atof(data[1].c_str());
-    msg.position.north = atof(data[2].c_str());
-    msg.position.east = atof(data[3].c_str());
-    msg.position.depth = atof(data[4].c_str());
-    msg.altitude = atof(data[5].c_str());
+    //msg.global_position.latitude = atof(data[0].c_str());
+    //msg.global_position.longitude = atof(data[1].c_str());
+    msg.position.north = atof(data[0].c_str());
+    msg.position.east = atof(data[1].c_str());
+    msg.position.depth = atof(data[2].c_str());
+    //msg.altitude = atof(data[5].c_str());
     pub_nav_sts_.publish(msg);
     ROS_INFO("PUBLISH: nav_sts");
   }
@@ -331,7 +331,7 @@ private:
       case 20:
         topic_info_thrusters_data = topic_info;
         if (pub) 
-          pub_thrusters_data_ = n.advertise<cola2_control::Setpoints>(topic_info.topic_name, 1);
+          pub_thrusters_data_ = n.advertise<control::Setpoints>(topic_info.topic_name, 1);
         else 
           sub_thrusters_data_ = n.subscribe(topic_info.topic_name, 1, &Session::thrusters_dataCallback, this);
         //ROS_INFO_STREAM("setup_topic: pub is " << pub << "\t Station" << station );
@@ -339,7 +339,7 @@ private:
       case 21:
         topic_info_emus_bms = topic_info;
         if (pub) 
-          pub_emus_bms_ = n.advertise<cola2_safety::EMUSBMS>(topic_info.topic_name, 1);
+          pub_emus_bms_ = n.advertise<safety::EMUSBMS>(topic_info.topic_name, 1);
         else 
           sub_emus_bms_ = n.subscribe(topic_info.topic_name, 1, &Session::emus_bmsCallback, this);
         ROS_INFO_STREAM("setup_topic: pub is " << pub << "\t Station" << station );

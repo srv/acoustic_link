@@ -7,7 +7,8 @@ find_package(catkin REQUIRED
 	rospy 
 	std_msgs 
 	std_srvs
-	cola2_control
+	control
+	safety
 	evologics_ros
 	)
 
@@ -17,7 +18,8 @@ catkin_package(CATKIN_DEPENDS
   	roscpp
   	std_msgs
   	std_srvs
-  	cola2_control
+	control
+	safety
 	evologics_ros
   	)
 

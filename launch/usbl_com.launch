@@ -1,22 +1,14 @@
 <launch>
-	<!-- publish a topic -->
-  	 <node name="publisher" pkg="tests" type="pubsubs" output="screen">
+    <!-- start the usbl -->
+    <node name="usbl" pkg="evologics_ros" type="evologics_node.py" output="screen">
+    <rosparam command="load" file="$(find evologics_ros)/conf/modem.yaml" />
     </node>
 
-   	<!-- start the usbl -->
-   	<node name="usbl" pkg="evologics_ros" type="evologics_node.py" output="screen">
-     <rosparam command="load" file="$(find evologics_ros)/conf/usbl.yaml" />
-   	</node>
+	<!--acoustic_link MODEM -->
+	<node pkg="acoustic_link" name="acoustic_link_USBL" type="acoustic_link_node" output="screen">
+		<rosparam command="load" file="$(find acoustic_link)/config/params_usbl.yaml"/>
+		<remap from="/im/in" to="/usbl/im/in"/>
+		<remap from="/im/out" to="/usbl/im/out"/>
 
-	<!--ROSSerial -->
-	<node pkg="rosserial_server" type="serial_node" name="rosserial_server" output="screen">
-		<rosparam command="load" file="$(find rosserial_server)/config/params_usbl.yaml"/>
-		<remap from="/rosserial_server/im/in" to="/usbl/im/in"/>
-		<remap from="/rosserial_server/im/out" to="/usbl/im/out"/>
-		<remap from="/rosserial_server/burst/in" to="/usbl/burst/in"/>
-		<remap from="/rosserial_server/burst/out" to="/usbl/burst/out"/>
-	</node>
-
-	<!--Ros serial python -->
-	<node pkg="rosserial_python" type="message_info_service.py" name="rosserial_message_info" />  
+	</node> 
 </launch>
