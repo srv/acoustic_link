@@ -1,0 +1,28 @@
+<launch>
+	<!--bagfile, to create the topics -->
+  	<param name="use_sim_time" value="true" />
+  	<arg name="bagfile" default="/home/eric/bagfiles/usbl-tests.bag"/>
+  	<node pkg="rosbag" type="play" name="rosbag" args="-l --clock $(arg bagfile)"/>
+
+  	<!-- publish a topic 
+  	 <node name="publisher" pkg="tests" type="talker" output="screen">
+    </node> -->
+
+
+    <!-- start the usbl 
+    <node name="modem" pkg="evologics_ros" type="evologics_node.py" output="screen">
+    <rosparam command="load" file="$(find evologics_ros)/conf/modem.yaml" />
+    </node>-->
+
+	<!--ROSSerial -->
+	<node pkg="rosserial_server" type="serial_node" name="rosserial_server" output="screen">
+		<rosparam command="load" file="$(find rosserial_server)/config/params_modem.yaml"/>
+		<remap from="/rosserial_server/im/in" to="/modem/im/in"/>
+		<remap from="/rosserial_server/im/out" to="/modem/im/out"/>
+		<remap from="/rosserial_server/burst/in" to="/modem/burst/in"/>
+		<remap from="/rosserial_server/burst/out" to="/modem/burst/out"/>
+	</node>
+
+	<!--Ros serial python -->
+	<node pkg="rosserial_python" type="message_info_service.py" name="rosserial_message_info" />  
+</launch>

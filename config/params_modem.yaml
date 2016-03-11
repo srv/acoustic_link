@@ -1,0 +1,44 @@
+station_address: 2 #Address 2 for the AUV, 1 for the USBL
+topics:
+    t0:
+        topic_id: 20
+        topic_name: cola2_control/thrusters_data
+        message_type: cola2_control/Setpoints
+        destination_address: 1
+        drop: 20
+    t1:
+        topic_id: 21
+        topic_name: cola2_safety/emus_bms
+        message_type: cola2_safety/EMUSBMS
+        destination_address: 1
+        drop: 20
+#    t2:
+#        topic_id: 22
+#        topic_name: cola2_navigation/nav_sts
+#        message_type: auv_msgs/NavSts
+#        destination_address: 1
+#        drop: 20
+#    t3:
+#        topic_id: 23
+#        topic_name: slam/loop_closings
+#        message_type: std_msgs/String
+#        destination_address: 1
+#        drop: 1
+#    t4:
+#        topic_id: 24
+#        topic_name: slam/keyframes
+#        message_type: std_msgs/String
+#        destination_address: 1
+#        drop: 1
+#    t5:
+#        topic_id: 25
+#        topic_name: /usbl_position/modem_position
+#        message_type: geometry_msgs/PoseWithCovarianceStamped
+#        destination_address: 2
+#        drop: 1
+services:
+    s0:
+        service_id: 50
+        service_name: empty_service
+        owner_address: 1
+

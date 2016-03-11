@@ -8,7 +8,7 @@ find_package(catkin REQUIRED
 	std_msgs 
 	std_srvs
 	cola2_control
-	evologics_driver
+	evologics_ros
 	)
 
 catkin_package(CATKIN_DEPENDS 
@@ -18,18 +18,19 @@ catkin_package(CATKIN_DEPENDS
   	std_msgs
   	std_srvs
   	cola2_control
-	evologics_driver
+	evologics_ros
   	)
+
+add_message_files(
+  FILES
+  TopicInfo.msg
+)
 
 
 ## Build node
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_executable(topic_out_node src/topic_out_node.cpp)
-target_link_libraries(topic_out_node ${catkin_LIBRARIES})
+add_executable(acoustic_link_node src/acoustic_link_node.cpp)
+target_link_libraries(acoustic_link_node ${catkin_LIBRARIES})
 
-#add_executable(service_out_node src/service_out_node.cpp)
-#target_link_libraries(service_out_node ${catkin_LIBRARIES})
 
-add_executable(publisher src/publisher.cpp)
-target_link_libraries(publisher ${catkin_LIBRARIES})

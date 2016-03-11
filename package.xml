@@ -46,12 +46,12 @@
   <build_depend>std_msgs</build_depend>
   <build_depend>std_srvs</build_depend>
   <build_depend>cola2_control</build_depend>
-  <build_depend>evologics_driver</build_depend>
+  <build_depend>evologics_ros</build_depend>
   <build_depend>message_generation</build_depend>
 
   <run_depend>message_runtime</run_depend>
   <run_depend>cola2_control</run_depend>
-  <run_depend>evologics_driver</run_depend>
+  <run_depend>evologics_ros</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
