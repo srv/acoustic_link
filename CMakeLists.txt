@@ -10,7 +10,9 @@ find_package(catkin REQUIRED
 	control
 	safety
 	evologics_ros
+	message_generation
 	)
+
 
 catkin_package(CATKIN_DEPENDS 
 	message_runtime
@@ -23,10 +25,6 @@ catkin_package(CATKIN_DEPENDS
 	evologics_ros
   	)
 
-add_message_files(
-  FILES
-  TopicInfo.msg
-)
 
 
 ## Build node

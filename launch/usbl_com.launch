@@ -1,14 +1,14 @@
 <launch>
-    <!-- start the usbl -->
-    <node name="usbl" pkg="evologics_ros" type="evologics_node.py" output="screen">
-    <rosparam command="load" file="$(find evologics_ros)/conf/modem.yaml" />
+	<!-- USBL -->
+    <!-- driver -->
+    <node name="usbl_driver" pkg="evologics_ros" type="evologics_node.py" output="screen">
+    <rosparam command="load" file="$(find evologics_ros)/conf/usbl.yaml" />
     </node>
 
-	<!--acoustic_link MODEM -->
-	<node pkg="acoustic_link" name="acoustic_link_USBL" type="acoustic_link_node" output="screen">
+	<!--acoustic_link -->
+	<node pkg="acoustic_link" name="usbl" type="acoustic_link_node" output="screen">
 		<rosparam command="load" file="$(find acoustic_link)/config/params_usbl.yaml"/>
 		<remap from="/im/in" to="/usbl/im/in"/>
 		<remap from="/im/out" to="/usbl/im/out"/>
-
 	</node> 
 </launch>
