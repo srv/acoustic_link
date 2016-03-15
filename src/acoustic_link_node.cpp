@@ -184,7 +184,7 @@ public:
     list.push_back(boost::lexical_cast<std::string>((float)msg->pose.pose.position.z));
     list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[0]));
     list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[7]));
-    list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[13]));
+    list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[14]));
     acoustic_msg.payload = boost::algorithm::join(list, ",");
     
     if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
@@ -257,8 +257,15 @@ private:
     {
       geometry_msgs::PoseWithCovarianceStamped msg;
       poseParse(acoustic_msg, data, msg);
-      pub_pose_.publish(msg);
+      pub_modem_position_.publish(msg);
       ROS_INFO("PUBLISH: modem_position");
+    }
+    if (id == 26) 
+    {
+      geometry_msgs::PoseWithCovarianceStamped msg;
+      poseParse(acoustic_msg, data, msg);
+      pub_depth_raw_.publish(msg);
+      ROS_INFO("PUBLISH: depth_raw");
     }
     if (id >= 40) // Services 
     {
@@ -278,8 +285,8 @@ private:
       if (id == 52) cli_laser_on.call(srv);
       if (id == 53) cli_laser_off.call(srv);
       if (id == 54) cli_reset_navigation.call(srv);
-      if (id == 55) cli_USBL_on.call(srv);
-      if (id == 56) cli_USBL_off.call(srv);
+      if (id == 55) cli_usbl_on.call(srv);
+      if (id == 56) cli_usbl_off.call(srv);
       ROS_INFO("Calling Service");
     }
   }
@@ -410,7 +417,9 @@ private:
       if (t.id == 24)
         pub_keyframes_ = n.advertise<std_msgs::String>(t.name, 1);
       if (t.id == 25)
-        pub_pose_ = n.advertise<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1);
+        pub_modem_position_ = n.advertise<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1);
+      if (t.id == 26)
+        pub_depth_raw_ = n.advertise<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1);
     }
     else 
     {
@@ -425,7 +434,9 @@ private:
       if (t.id == 24)
         sub_keyframes_ = n.subscribe<std_msgs::String>(t.name, 1, boost::bind(&Session::stringCallback, this, _1, t));
       if (t.id == 25)
-        sub_pose_ = n.subscribe<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1, boost::bind(&Session::poseCallback, this, _1, t));
+        sub_modem_position_ = n.subscribe<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1, boost::bind(&Session::poseCallback, this, _1, t));
+      if (t.id == 26)
+        sub_depth_raw_ = n.subscribe<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1, boost::bind(&Session::poseCallback, this, _1, t));
     }
   }
    
@@ -465,9 +476,9 @@ private:
       if (s.id == 54)
         srv_reset_navigation = n.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.id == 55)
-        srv_USBL_on = n.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_usbl_on = n.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.id == 56)
-        srv_USBL_off = n.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_usbl_off = n.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
     }
     else {
       if (s.id == 40) cli_sonar_on = n.serviceClient<std_srvs::Empty>(s.name);
@@ -485,8 +496,8 @@ private:
       if (s.id == 52) cli_laser_on = n.serviceClient<std_srvs::Empty>(s.name);
       if (s.id == 53) cli_laser_off = n.serviceClient<std_srvs::Empty>(s.name);
       if (s.id == 54) cli_reset_navigation = n.serviceClient<std_srvs::Empty>(s.name);
-      if (s.id == 55) cli_USBL_on = n.serviceClient<std_srvs::Empty>(s.name);
-      if (s.id == 56) cli_USBL_off = n.serviceClient<std_srvs::Empty>(s.name);
+      if (s.id == 55) cli_usbl_on = n.serviceClient<std_srvs::Empty>(s.name);
+      if (s.id == 56) cli_usbl_off = n.serviceClient<std_srvs::Empty>(s.name);
     }
     
 
@@ -502,13 +513,15 @@ private:
   ros::Subscriber sub_nav_sts_;
   ros::Subscriber sub_loop_closings_;
   ros::Subscriber sub_keyframes_;
-  ros::Subscriber sub_pose_;
+  ros::Subscriber sub_modem_position_;
+  ros::Subscriber sub_depth_raw_;
   ros::Publisher  pub_setpoints_;
   ros::Publisher  pub_emus_bms_;
   ros::Publisher  pub_nav_sts_;
   ros::Publisher  pub_loop_closings_;
   ros::Publisher  pub_keyframes_;
-  ros::Publisher  pub_pose_;
+  ros::Publisher  pub_modem_position_;
+  ros::Publisher  pub_depth_raw_;
 
   ros::ServiceServer srv_sonar_on;
   ros::ServiceServer srv_sonar_off;
@@ -525,8 +538,8 @@ private:
   ros::ServiceServer srv_laser_on;
   ros::ServiceServer srv_laser_off;
   ros::ServiceServer srv_reset_navigation;
-  ros::ServiceServer srv_USBL_on;
-  ros::ServiceServer srv_USBL_off;
+  ros::ServiceServer srv_usbl_on;
+  ros::ServiceServer srv_usbl_off;
 
   ros::ServiceClient cli_sonar_on;
   ros::ServiceClient cli_sonar_off;
@@ -543,8 +556,8 @@ private:
   ros::ServiceClient cli_laser_on;
   ros::ServiceClient cli_laser_off;
   ros::ServiceClient cli_reset_navigation;
-  ros::ServiceClient cli_USBL_on;
-  ros::ServiceClient cli_USBL_off;
+  ros::ServiceClient cli_usbl_on;
+  ros::ServiceClient cli_usbl_off;
 };
 
 

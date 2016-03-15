@@ -2,12 +2,12 @@
 	<!-- MODEM -->
     <!-- driver -->
     <node name="modem_driver" pkg="evologics_ros" type="evologics_node.py" output="screen">
-    <rosparam command="load" file="$(find evologics_ros)/conf/modem.yaml" />
+    <rosparam command="load" file="$(find evologics_ros)/conf/param_modem.yaml" />
     </node>
 
 	<!--acoustic_link-->
 	<node pkg="acoustic_link" name="modem" type="acoustic_link_node" output="screen">
-		<rosparam command="load" file="$(find acoustic_link)/config/params_modem.yaml"/>
+		<rosparam command="load" file="$(find acoustic_link)/conf/topics_modem.yaml"/>
 		<remap from="/im/in" to="/modem/im/in"/>
 		<remap from="/im/out" to="/modem/im/out"/>
 	</node> 

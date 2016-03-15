@@ -1,51 +1,51 @@
-station_address: 2 #Address 2 for the AUV, 1 for the USBL
+station_address: 1 #Address 2 for the AUV, 1 for the USBL
 topics:
-   t0:
+    t0:
         topic_id: 20
-        topic_name: cola2_control/thrusters_data
+        topic_name: control/thrusters_data2
         message_type: control/Setpoints
         destination_address: 1
         drop: 50
-#    t1:
-#        topic_id: 21
-#        topic_name: cola2_safety/emus_bms
-#        message_type: safety/EMUSBMS
-#        destination_address: 1
-#        drop: 50
-#    t2:
-#        topic_id: 22
-#        topic_name: cola2_navigation/nav_sts
-#        message_type: auv_msgs/NavSts
-#        destination_address: 1
-#        drop: 50
-#    t3:
-#        topic_id: 23
-#        topic_name: slam/loop_closings
-#        message_type: std_msgs/String
-#        destination_address: 1
-#        drop: 1
-#    t4:
-#        topic_id: 24
-#        topic_name: slam/keyframes
-#        message_type: std_msgs/String
-#        destination_address: 1
-#        drop: 1
-#    t5:
-#        topic_id: 25
-#        topic_name: usbl_position/modem_position
-#        message_type: geometry_msgs/PoseWithCovarianceStamped
-#        destination_address: 2
-#        drop: 1
-#    t6:
-#        topic_id: 26
-#        topic_name: sensors/depth_raw
-#        message_type: geometry_msgs/PoseWithCovarianceStamped
-#        destination_address: 1
-#        drop: 1
+#   t1:
+#       topic_id: 21
+#       topic_name: safety/emus_bms2
+#       message_type: safety/EMUSBMS
+#       destination_address: 1
+#       drop: 50
+#   t2:
+#       topic_id: 22
+#       topic_name: navigation/nav_sts2
+#       message_type: auv_msgs/NavSts
+#       destination_address: 1
+#       drop: 50
+#   t3:
+#       topic_id: 23
+#       topic_name: slam/loop_closings2
+#       message_type: std_msgs/String
+#       destination_address: 1
+#       drop: 1
+#   t4:
+#       topic_id: 24
+#       topic_name: slam/keyframes2
+#       message_type: std_msgs/String
+#       destination_address: 1
+#       drop: 1
+    t5:
+       topic_id: 25
+       topic_name: usbl/modem_position
+       message_type: geometry_msgs/PoseWithCovarianceStamped
+       destination_address: 2
+       drop: 1
+#   t6:
+#       topic_id: 26
+#       topic_name: sensors/depth_raw2
+#       message_type: geometry_msgs/PoseWithCovarianceStamped
+#       destination_address: 1
+#       drop: 1
 services:
     s0:
         service_id: 40
-        service_name: sonar_on2
+        service_name: sonar_on
         owner_address: 2
     s1:
         service_id: 41
@@ -101,13 +101,13 @@ services:
         owner_address: 2
     s14:
         service_id: 54
-        service_name: cola2_navigation/reset_navigation
+        service_name: navigation/reset_navigation
         owner_address: 2
     s15:
         service_id: 55
-        service_name: USBL_on
+        service_name: usbl_on
         owner_address: 2
     s16:
         service_id: 56
-        service_name: USBL_off
+        service_name: usbl_off
         owner_address: 2
