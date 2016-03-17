@@ -1,47 +1,53 @@
 station_address: 1 #Address 2 for the AUV, 1 for the USBL
 topics:
     t0:
-        topic_id: 20
-        topic_name: control/thrusters_data2
-        message_type: control/Setpoints
-        destination_address: 1
-        drop: 50
-#   t1:
-#       topic_id: 21
-#       topic_name: safety/emus_bms2
-#       message_type: safety/EMUSBMS
-#       destination_address: 1
-#       drop: 50
-#   t2:
-#       topic_id: 22
-#       topic_name: navigation/nav_sts2
-#       message_type: auv_msgs/NavSts
-#       destination_address: 1
-#       drop: 50
-#   t3:
-#       topic_id: 23
-#       topic_name: slam/loop_closings2
-#       message_type: std_msgs/String
-#       destination_address: 1
-#       drop: 1
-#   t4:
-#       topic_id: 24
-#       topic_name: slam/keyframes2
-#       message_type: std_msgs/String
-#       destination_address: 1
-#       drop: 1
+        topic_id: 24
+        topic_name: slam/keyframes
+        message_type: std_msgs/String
+        destination_address: 2
+        drop: 5
+#    t0:
+#        topic_id: 20
+#        topic_name: control/thrusters_data
+#        message_type: control/Setpoints
+#        destination_address: 1
+#        drop: 40
+#    t1:
+#        topic_id: 21
+#        topic_name: safety/emus_bms
+#        message_type: safety/EMUSBMS
+#        destination_address: 1
+#        drop: 40
+#    t2:
+#        topic_id: 22
+#        topic_name: navigation/nav_sts
+#        message_type: auv_msgs/NavSts
+#        destination_address: 1
+#        drop: 40
+#    t3:
+#        topic_id: 23
+#        topic_name: slam/loop_closings
+#        message_type: std_msgs/String
+#        destination_address: 1
+#        drop: 1
+#    t4:
+#        topic_id: 24
+#        topic_name: slam/keyframes
+#        message_type: std_msgs/String
+#        destination_address: 1
+#        drop: 1
     t5:
-       topic_id: 25
-       topic_name: usbl/modem_position
-       message_type: geometry_msgs/PoseWithCovarianceStamped
-       destination_address: 2
-       drop: 1
-#   t6:
-#       topic_id: 26
-#       topic_name: sensors/depth_raw2
-#       message_type: geometry_msgs/PoseWithCovarianceStamped
-#       destination_address: 1
-#       drop: 1
+        topic_id: 25
+        topic_name: usbl/modem_position
+        message_type: geometry_msgs/PoseWithCovarianceStamped
+        destination_address: 2
+        drop: 1
+#    t6:
+#        topic_id: 26
+#        topic_name: sensors/depth_raw
+#        message_type: geometry_msgs/PoseWithCovarianceStamped
+#        destination_address: 1
+#        drop: 10
 services:
     s0:
         service_id: 40

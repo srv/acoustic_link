@@ -5,12 +5,10 @@
 
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
-#include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <algorithm>
 
-#include <std_msgs/Time.h>
 
 #include "control/Setpoints.h"
 #include "safety/EMUSBMS.h"
@@ -248,10 +246,11 @@ private:
     }
     if (id == 24) 
     {
+      ROS_INFO("PUBLISH: keyframes 1");
       std_msgs::String msg;
       stringParse(acoustic_msg, data, msg);
       pub_keyframes_.publish(msg);
-      ROS_INFO("PUBLISH: keyframes");
+      ROS_INFO("PUBLISH: keyframes 2");
     }
     if (id == 25) 
     {

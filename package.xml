@@ -47,12 +47,14 @@
   <build_depend>std_srvs</build_depend>
   <build_depend>control</build_depend>
   <build_depend>safety</build_depend>
+  <build_depend>auv_msgs</build_depend>
   <build_depend>evologics_ros</build_depend>
   <build_depend>message_generation</build_depend>
 
   <run_depend>message_runtime</run_depend>
   <run_depend>control</run_depend>
   <run_depend>safety</run_depend>
+  <run_depend>auv_msgs</run_depend>
   <run_depend>evologics_ros</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>

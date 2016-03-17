@@ -9,6 +9,7 @@ find_package(catkin REQUIRED
 	std_srvs
 	control
 	safety
+	auv_msgs
 	evologics_ros
 	message_generation
 	)
@@ -22,6 +23,7 @@ catkin_package(CATKIN_DEPENDS
   	std_srvs
 	control
 	safety
+	auv_msgs
 	evologics_ros
   	)
 
@@ -32,5 +34,5 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_executable(acoustic_link_node src/acoustic_link_node.cpp)
 target_link_libraries(acoustic_link_node ${catkin_LIBRARIES})
-
+add_dependencies(acoustic_link_node control_gencpp safety_gencpp auv_msgs_gencpp)
 
