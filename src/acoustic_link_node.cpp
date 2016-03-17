@@ -246,11 +246,10 @@ private:
     }
     if (id == 24) 
     {
-      ROS_INFO("PUBLISH: keyframes 1");
       std_msgs::String msg;
       stringParse(acoustic_msg, data, msg);
       pub_keyframes_.publish(msg);
-      ROS_INFO("PUBLISH: keyframes 2");
+      ROS_INFO("PUBLISH: keyframes ");
     }
     if (id == 25) 
     {
@@ -265,6 +264,13 @@ private:
       poseParse(acoustic_msg, data, msg);
       pub_depth_raw_.publish(msg);
       ROS_INFO("PUBLISH: depth_raw");
+    }
+    if (id == 27) 
+    {
+      std_msgs::String msg;
+      stringParse(acoustic_msg, data, msg);
+      pub_ping_.publish(msg);
+      ROS_INFO("PUBLISH: ping ");
     }
     if (id >= 40) // Services 
     {
@@ -419,6 +425,8 @@ private:
         pub_modem_position_ = n.advertise<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1);
       if (t.id == 26)
         pub_depth_raw_ = n.advertise<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1);
+      if (t.id == 27)
+        pub_ping_ = n.advertise<std_msgs::String>(t.name, 1);
     }
     else 
     {
@@ -436,6 +444,9 @@ private:
         sub_modem_position_ = n.subscribe<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1, boost::bind(&Session::poseCallback, this, _1, t));
       if (t.id == 26)
         sub_depth_raw_ = n.subscribe<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1, boost::bind(&Session::poseCallback, this, _1, t));
+      if (t.id == 27)
+        sub_ping_ = n.subscribe<std_msgs::String>(t.name, 1, boost::bind(&Session::stringCallback, this, _1, t));
+    
     }
   }
    
@@ -514,6 +525,7 @@ private:
   ros::Subscriber sub_keyframes_;
   ros::Subscriber sub_modem_position_;
   ros::Subscriber sub_depth_raw_;
+  ros::Subscriber sub_ping_;
   ros::Publisher  pub_setpoints_;
   ros::Publisher  pub_emus_bms_;
   ros::Publisher  pub_nav_sts_;
@@ -521,6 +533,7 @@ private:
   ros::Publisher  pub_keyframes_;
   ros::Publisher  pub_modem_position_;
   ros::Publisher  pub_depth_raw_;
+  ros::Publisher  pub_ping_;
 
   ros::ServiceServer srv_sonar_on;
   ros::ServiceServer srv_sonar_off;

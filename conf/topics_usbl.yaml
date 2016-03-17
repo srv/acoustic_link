@@ -18,12 +18,12 @@ topics:
 #        message_type: auv_msgs/NavSts
 #        destination_address: 1
 #        drop: 40
-#    t3:
-#        topic_id: 23
-#        topic_name: slam/loop_closings
-#        message_type: std_msgs/String
-#        destination_address: 1
-#        drop: 1
+    # t3:
+    #     topic_id: 23
+    #     topic_name: slam/loop_closings
+    #     message_type: std_msgs/String
+    #     destination_address: 2
+    #     drop: 1
 #    t4:
 #        topic_id: 24
 #        topic_name: slam/keyframes
@@ -42,6 +42,12 @@ topics:
 #        message_type: geometry_msgs/PoseWithCovarianceStamped
 #        destination_address: 1
 #        drop: 10
+    t7:
+        topic_id: 27
+        topic_name: ping_string
+        message_type: std_msgs/String
+        destination_address: 2
+        drop: 1
 services:
     s0:
         service_id: 40
