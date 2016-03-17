@@ -1,11 +1,5 @@
 station_address: 1 #Address 2 for the AUV, 1 for the USBL
 topics:
-    t0:
-        topic_id: 24
-        topic_name: slam/keyframes
-        message_type: std_msgs/String
-        destination_address: 2
-        drop: 5
 #    t0:
 #        topic_id: 20
 #        topic_name: control/thrusters_data

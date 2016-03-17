@@ -11,4 +11,9 @@
 		<remap from="/im/in" to="/modem/im/in"/>
 		<remap from="/im/out" to="/modem/im/out"/>
 	</node> 
+
+	<!--new position node:
+	1-Subscribe modem-acoustic position and publish the transform
+	2-Subscribe usbl-gps position and publish the transform
+	-->
 </launch>
