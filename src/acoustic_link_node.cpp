@@ -99,7 +99,7 @@ public:
     list.push_back(boost::lexical_cast<std::string>((float)msg->setpoints[0]));
     list.push_back(boost::lexical_cast<std::string>((float)msg->setpoints[1]));
     list.push_back(boost::lexical_cast<std::string>((float)msg->setpoints[2]));
-    acoustic_msg.payload = boost::algorithm::join(list, ",");
+    acoustic_msg.payload = boost::algorithm::join(list, ";");
     
     if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
     else ROS_WARN("Payload size bigger than expected:  setpoints");
@@ -117,7 +117,7 @@ public:
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
     list.push_back(boost::lexical_cast<std::string>((float)msg->stateOfCharge));
-    acoustic_msg.payload = boost::algorithm::join(list, ",");
+    acoustic_msg.payload = boost::algorithm::join(list, ";");
     
     if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
     else ROS_WARN("Payload size bigger than expected:  emus_bms");
@@ -141,7 +141,7 @@ public:
     list.push_back(boost::lexical_cast<std::string>((float)msg->position.east));
     list.push_back(boost::lexical_cast<std::string>((float)msg->position.depth));
     //list.push_back(boost::lexical_cast<std::string>((float)msg->altitude));
-    acoustic_msg.payload = boost::algorithm::join(list, ",");
+    acoustic_msg.payload = boost::algorithm::join(list, ";");
     
     if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
     else ROS_WARN("Payload size bigger than expected:  nav_sts");
@@ -154,12 +154,12 @@ public:
     evologics_ros::AcousticModemPayload acoustic_msg;
     acoustic_msg.header.stamp = ros::Time::now();
     acoustic_msg.ack = true;
-    acoustic_msg.address = t.address;
+    acoustic_msg.address = 2;
 
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
     list.push_back(msg->data);
-    acoustic_msg.payload = boost::algorithm::join(list, ",");
+    acoustic_msg.payload = boost::algorithm::join(list, ";");
     
     if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
     else ROS_WARN("Payload size bigger than expected:  string");
@@ -180,11 +180,12 @@ public:
     list.push_back(boost::lexical_cast<std::string>((float)msg->pose.pose.position.x));
     list.push_back(boost::lexical_cast<std::string>((float)msg->pose.pose.position.y));
     list.push_back(boost::lexical_cast<std::string>((float)msg->pose.pose.position.z));
-    list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[0]));
-    list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[7]));
-    list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[14]));
-    acoustic_msg.payload = boost::algorithm::join(list, ",");
-    
+    //list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[0]));
+    //list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[7]));
+    //list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[14]));
+    acoustic_msg.payload = boost::algorithm::join(list, ";");
+    ROS_INFO_STREAM("acoustic_msg.payload.size() = " << acoustic_msg.payload.size());
+    ROS_INFO_STREAM("x() = " << boost::lexical_cast<std::string>((float)msg->pose.pose.position.x));
     if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
     else ROS_WARN("Payload size bigger than expected:  PoseWithCovarianceStampedCallback");
   }
