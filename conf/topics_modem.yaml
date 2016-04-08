@@ -1,23 +1,23 @@
 station_address: 2 #Address 2 for the AUV, 1 for the USBL
 topics:
     t0:
-        topic_id: 20
-        topic_name: control/thrusters_data
-        message_type: control/Setpoints
-        destination_address: 1
-        drop: 40
+       topic_id: 20
+       topic_name: control/thrusters_data
+       message_type: control/Setpoints
+       destination_address: 1
+       drop: 40
     t1:
-        topic_id: 21
-        topic_name: safety/emus_bms
-        message_type: safety/EMUSBMS
-        destination_address: 1
-        drop: 40
+       topic_id: 21
+       topic_name: safety/emus_bms
+       message_type: safety/EMUSBMS
+       destination_address: 1
+       drop: 40
     t2:
-        topic_id: 22
-        topic_name: navigation/nav_sts
-        message_type: auv_msgs/NavSts
-        destination_address: 1
-        drop: 40
+       topic_id: 22
+       topic_name: navigation/nav_sts
+       message_type: auv_msgs/NavSts
+       destination_address: 1
+       drop: 40
     t3:
         topic_id: 23
         topic_name: slam/loop_closings
@@ -25,23 +25,41 @@ topics:
         destination_address: 1
         drop: 1
     t4:
-        topic_id: 24
-        topic_name: slam/keyframes
-        message_type: std_msgs/String
-        destination_address: 1
-        drop: 1
-    t5:
-        topic_id: 25
-        topic_name: usbl/modem_position
-        message_type: geometry_msgs/PoseWithCovarianceStamped
+       topic_id: 24
+       topic_name: slam/keyframes
+       message_type: std_msgs/String
+       destination_address: 1
+       drop: 1
+    # t5:
+    #     topic_id: 25
+    #     topic_name: sensors/modem_raw
+    #     message_type: geometry_msgs/PoseWithCovarianceStamped
+    #     destination_address: 2
+    #     drop: 1
+    # t6:
+    #    topic_id: 26
+    #    topic_name: sensors/depth_raw
+    #    message_type: geometry_msgs/PoseWithCovarianceStamped
+    #    destination_address: 1
+    #    drop: 10
+    # t7:
+    #     topic_id: 27
+    #     topic_name: ping_string
+    #     message_type: std_msgs/String
+    #     destination_address: 2
+    #     drop: 1
+    t8:
+        topic_id: 28
+        topic_name: usbl/usbllong
+        message_type: evologics_ros/AcousticModemUSBLLONG
         destination_address: 2
         drop: 1
-    t6:
-        topic_id: 26
-        topic_name: sensors/depth_raw
-        message_type: geometry_msgs/PoseWithCovarianceStamped
-        destination_address: 1
-        drop: 10
+    t9:
+        topic_id: 29
+        topic_name: usbl/usblangles
+        message_type: evologics_ros/AcousticModemUSBLANGLES
+        destination_address: 2
+        drop: 1
 services:
     s0:
         service_id: 40

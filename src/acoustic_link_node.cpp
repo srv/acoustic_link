@@ -16,7 +16,15 @@
 #include "std_msgs/String.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include "evologics_ros/AcousticModemPayload.h"
+#include "evologics_ros/AcousticModemUSBLLONG.h"
+#include "evologics_ros/AcousticModemUSBLANGLES.h"
 #include "std_srvs/Empty.h"
+
+
+#include <iostream>
+#include <cstring>
+#include <vector>
+#include <iomanip> 
 
 // INSERT NEW TOPICS
 // Complete Callback, genericCb, Parser, setup_topic, handles
@@ -88,27 +96,29 @@ public:
   {
     if (dropTopic(t)) return;
 
-    ROS_INFO("setpointsCallback");
+    ROS_INFO("SUB: setpoints");
+    std::vector<std::string> list;
+    list.push_back(boost::lexical_cast<std::string>(t.id)); 
+    list.push_back(f2s((float)msg->setpoints[0]));
+    list.push_back(f2s((float)msg->setpoints[1]));
+    list.push_back(f2s((float)msg->setpoints[2]));
+
+
+    
     evologics_ros::AcousticModemPayload acoustic_msg;
     acoustic_msg.header = msg->header;
     acoustic_msg.ack = true;
     acoustic_msg.address = t.address;
 
-    std::vector<std::string> list;
-    list.push_back(boost::lexical_cast<std::string>(t.id)); 
-    list.push_back(boost::lexical_cast<std::string>((float)msg->setpoints[0]));
-    list.push_back(boost::lexical_cast<std::string>((float)msg->setpoints[1]));
-    list.push_back(boost::lexical_cast<std::string>((float)msg->setpoints[2]));
     acoustic_msg.payload = boost::algorithm::join(list, ";");
     
-    if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
-    else ROS_WARN("Payload size bigger than expected:  setpoints");
+    publish_im(acoustic_msg);
   }
 
   void emus_bmsCallback(const safety::EMUSBMS::ConstPtr& msg, const Topic t)
   {
     if (dropTopic(t)) return;
-    ROS_INFO("emus_bmsCallback");
+    ROS_INFO("SUB: emus_bms");
     evologics_ros::AcousticModemPayload acoustic_msg;
     acoustic_msg.header = msg->header;
     acoustic_msg.ack = true;
@@ -116,60 +126,56 @@ public:
 
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
-    list.push_back(boost::lexical_cast<std::string>((float)msg->stateOfCharge));
+    list.push_back(f2s((float)msg->stateOfCharge));
     acoustic_msg.payload = boost::algorithm::join(list, ";");
     
-    if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
-    else ROS_WARN("Payload size bigger than expected:  emus_bms");
+    publish_im(acoustic_msg);
   }
 
   void nav_stsCallback(const auv_msgs::NavSts::ConstPtr& msg, const Topic t)
   {
     if (dropTopic(t)) return;
-    ROS_INFO("nav_stsCallback");
+    ROS_INFO("SUB: nav_sts");
     evologics_ros::AcousticModemPayload acoustic_msg;
     acoustic_msg.header = msg->header;
     
     acoustic_msg.ack = true;
     acoustic_msg.address = t.address;
-
+    ROS_INFO_STREAM("NED1: " << msg->position.north << "\t " << msg->position.east << "\t " << msg->position.depth);
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
-    //list.push_back(boost::lexical_cast<std::string>((float)msg->global_position.latitude));
-    //list.push_back(boost::lexical_cast<std::string>((float)msg->global_position.longitude));
-    list.push_back(boost::lexical_cast<std::string>((float)msg->position.north));
-    list.push_back(boost::lexical_cast<std::string>((float)msg->position.east));
-    list.push_back(boost::lexical_cast<std::string>((float)msg->position.depth));
-    //list.push_back(boost::lexical_cast<std::string>((float)msg->altitude));
+    list.push_back(f2s((float)msg->global_position.latitude));
+    list.push_back(f2s((float)msg->global_position.longitude));
+    list.push_back(f2s((float)msg->position.north));
+    list.push_back(f2s((float)msg->position.east));
+    list.push_back(f2s((float)msg->position.depth));
+    list.push_back(f2s((float)msg->altitude));
     acoustic_msg.payload = boost::algorithm::join(list, ";");
-    
-    if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
-    else ROS_WARN("Payload size bigger than expected:  nav_sts");
+    publish_im(acoustic_msg);
   }
 
   void stringCallback(const std_msgs::String::ConstPtr& msg, const Topic t)
   {
     if (dropTopic(t)) return;
-    ROS_INFO("stringCallback");
+    ROS_INFO("SUB: string");
     evologics_ros::AcousticModemPayload acoustic_msg;
     acoustic_msg.header.stamp = ros::Time::now();
     acoustic_msg.ack = true;
-    acoustic_msg.address = 2;
+    acoustic_msg.address = t.address;
 
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
     list.push_back(msg->data);
     acoustic_msg.payload = boost::algorithm::join(list, ";");
-    
-    if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
-    else ROS_WARN("Payload size bigger than expected:  string");
+
+    publish_im(acoustic_msg);
   }
 
 
   void poseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg, const Topic t)
   {
     if (dropTopic(t)) return;
-    ROS_INFO("poseCallback");
+    ROS_INFO("SUB: pose");
     evologics_ros::AcousticModemPayload acoustic_msg;
     acoustic_msg.header = msg->header;
     acoustic_msg.ack = true;
@@ -177,22 +183,20 @@ public:
 
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
-    list.push_back(boost::lexical_cast<std::string>((float)msg->pose.pose.position.x));
-    list.push_back(boost::lexical_cast<std::string>((float)msg->pose.pose.position.y));
-    list.push_back(boost::lexical_cast<std::string>((float)msg->pose.pose.position.z));
-    //list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[0]));
-    //list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[7]));
-    //list.push_back(boost::lexical_cast<std::string>((float)msg->pose.covariance[14]));
+    list.push_back(f2s((float)msg->pose.pose.position.x));
+    list.push_back(f2s((float)msg->pose.pose.position.y));
+    list.push_back(f2s((float)msg->pose.pose.position.z));
+    list.push_back(f2s((float)msg->pose.covariance[0]));
+    list.push_back(f2s((float)msg->pose.covariance[7]));
+    list.push_back(f2s((float)msg->pose.covariance[14]));
     acoustic_msg.payload = boost::algorithm::join(list, ";");
-    ROS_INFO_STREAM("acoustic_msg.payload.size() = " << acoustic_msg.payload.size());
-    ROS_INFO_STREAM("x() = " << boost::lexical_cast<std::string>((float)msg->pose.pose.position.x));
-    if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
-    else ROS_WARN("Payload size bigger than expected:  PoseWithCovarianceStampedCallback");
+ 
+    publish_im(acoustic_msg);
   }
 
   bool empty_srvCallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response, const Service s)
   {
-    ROS_INFO("empty_srvCallback");
+    ROS_INFO("SUB: empty_srv");
     evologics_ros::AcousticModemPayload acoustic_msg;
     acoustic_msg.header.stamp = ros::Time::now();
     acoustic_msg.ack = true;
@@ -200,6 +204,54 @@ public:
     acoustic_msg.payload = boost::lexical_cast<std::string>(s.id);
     
     instant_pub_.publish(acoustic_msg); 
+  }
+
+  void publish_im(const evologics_ros::AcousticModemPayload& acoustic_msg)
+  {
+    ROS_INFO_STREAM("Size: " << acoustic_msg.payload.size());
+    if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
+    else ROS_WARN("Payload size bigger than expected: max 64");
+  }
+
+  void usbllongCallback(const evologics_ros::AcousticModemUSBLLONG::ConstPtr& msg, const Topic t)
+  {
+    if (dropTopic(t)) return;
+    ROS_INFO("SUB: usbllong");
+    evologics_ros::AcousticModemPayload acoustic_msg;
+    acoustic_msg.header = msg->header;
+    acoustic_msg.ack = true;
+    acoustic_msg.address = t.address;
+
+    std::vector<std::string> list;
+    list.push_back(boost::lexical_cast<std::string>(t.id)); 
+    list.push_back(f2s((float)msg->N));
+    list.push_back(f2s((float)msg->E));
+    list.push_back(f2s((float)msg->U));
+    list.push_back(f2s((float)msg->accuracy));
+
+    acoustic_msg.payload = boost::algorithm::join(list, ";");
+ 
+    publish_im(acoustic_msg);
+  }
+
+  void usblanglesCallback(const evologics_ros::AcousticModemUSBLANGLES::ConstPtr& msg, const Topic t)
+  {
+    if (dropTopic(t)) return;
+    ROS_INFO("SUB: usblangles");
+    evologics_ros::AcousticModemPayload acoustic_msg;
+    acoustic_msg.header = msg->header;
+    acoustic_msg.ack = true;
+    acoustic_msg.address = t.address;
+
+    std::vector<std::string> list;
+    list.push_back(boost::lexical_cast<std::string>(t.id)); 
+    list.push_back(f2s((float)msg->bearing));
+    list.push_back(f2s((float)msg->elevation));
+    list.push_back(f2s((float)msg->accuracy));
+
+    acoustic_msg.payload = boost::algorithm::join(list, ";");
+ 
+    publish_im(acoustic_msg);
   }
 
 private:
@@ -210,7 +262,7 @@ private:
     std::string payload = acoustic_msg->payload;
 
     std::vector<std::string> data;
-    boost::split(data, payload, boost::is_any_of(","));
+    boost::split(data, payload, boost::is_any_of(";"));
     
 
     // Extract topic id
@@ -222,57 +274,72 @@ private:
       control::Setpoints msg;
       setpointsParse(acoustic_msg, data, msg);
       pub_setpoints_.publish(msg);
-      ROS_INFO("PUBLISH: thrusters_data");
+      ROS_INFO("PUB: thrusters_data");
     }
     if (id == 21) 
     {
       safety::EMUSBMS msg;
       emus_bmsParse(acoustic_msg, data, msg);
       pub_emus_bms_.publish(msg);
-      ROS_INFO("PUBLISH: emus_bms");
+      ROS_INFO("PUB: emus_bms");
     }
     if (id == 22) 
     {
       auv_msgs::NavSts msg;
       nav_stsParse(acoustic_msg, data, msg);
       pub_nav_sts_.publish(msg);
-      ROS_INFO("PUBLISH: nav_sts");
+      ROS_INFO("PUB: nav_sts");
     }
     if (id == 23) 
     {
       std_msgs::String msg;
       stringParse(acoustic_msg, data, msg);
       pub_loop_closings_.publish(msg);
-      ROS_INFO("PUBLISH: loop_closings");
+      ROS_INFO("PUB: loop_closings");
     }
     if (id == 24) 
     {
       std_msgs::String msg;
       stringParse(acoustic_msg, data, msg);
       pub_keyframes_.publish(msg);
-      ROS_INFO("PUBLISH: keyframes ");
+      ROS_INFO("PUB: keyframes ");
     }
     if (id == 25) 
     {
       geometry_msgs::PoseWithCovarianceStamped msg;
       poseParse(acoustic_msg, data, msg);
       pub_modem_position_.publish(msg);
-      ROS_INFO("PUBLISH: modem_position");
+      ROS_INFO("PUB: modem_position");
     }
     if (id == 26) 
     {
       geometry_msgs::PoseWithCovarianceStamped msg;
       poseParse(acoustic_msg, data, msg);
       pub_depth_raw_.publish(msg);
-      ROS_INFO("PUBLISH: depth_raw");
+      ROS_INFO("PUB: depth_raw");
     }
     if (id == 27) 
     {
       std_msgs::String msg;
       stringParse(acoustic_msg, data, msg);
       pub_ping_.publish(msg);
-      ROS_INFO("PUBLISH: ping ");
+      ROS_INFO("PUB: ping ");
     }
+    if (id == 28) 
+    {
+      evologics_ros::AcousticModemUSBLLONG msg;
+      usbllongParse(acoustic_msg, data, msg);
+      pub_usbllong_.publish(msg);
+      ROS_INFO("PUB: usbllong ");
+    }
+    if (id == 29) 
+    {
+      evologics_ros::AcousticModemUSBLANGLES msg;
+      usblanglesParse(acoustic_msg, data, msg);
+      pub_usblangles_.publish(msg);
+      ROS_INFO("PUB: usblangles ");
+    }
+
     if (id >= 40) // Services 
     {
       std_srvs::Empty srv;
@@ -303,9 +370,9 @@ private:
   {
     msg.header = acoustic_msg->header;
     msg.setpoints.resize(data.size());
-    msg.setpoints[0] = atof(data[0].c_str());
-    msg.setpoints[1] = atof(data[1].c_str());
-    msg.setpoints[2] = atof(data[2].c_str());
+    msg.setpoints[0] = s2f(data[0].c_str());
+    msg.setpoints[1] = s2f(data[1].c_str());
+    msg.setpoints[2] = s2f(data[2].c_str());
   }
 
   void emus_bmsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
@@ -313,7 +380,7 @@ private:
                      safety::EMUSBMS& msg)
   {
     msg.header = acoustic_msg->header;
-    msg.stateOfCharge = atof(data[0].c_str());
+    msg.stateOfCharge = s2f(data[0].c_str());
   }
 
   void nav_stsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
@@ -321,12 +388,14 @@ private:
                     auv_msgs::NavSts& msg)
   {
     msg.header = acoustic_msg->header;
-    //msg.global_position.latitude = atof(data[0].c_str());
-    //msg.global_position.longitude = atof(data[1].c_str());
-    msg.position.north = atof(data[0].c_str());
-    msg.position.east = atof(data[1].c_str());
-    msg.position.depth = atof(data[2].c_str());
-    //msg.altitude = atof(data[5].c_str());
+    msg.global_position.latitude = s2f(data[0].c_str());
+    msg.global_position.longitude = s2f(data[1].c_str());
+    msg.position.north = s2f(data[2].c_str());
+    msg.position.east = s2f(data[3].c_str());
+    msg.position.depth = s2f(data[4].c_str());
+    msg.altitude = s2f(data[5].c_str());
+
+    ROS_INFO_STREAM("NED2: " << msg.position.north << "\t " << msg.position.east << "\t " << msg.position.depth);
   }
 
   void stringParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
@@ -334,7 +403,7 @@ private:
                    std_msgs::String& msg)
   { 
     //msg.header = acoustic_msg->header.stamp;
-    msg.data = atof(data[0].c_str());
+    msg.data = data[0].c_str();
   }
 
   void poseParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
@@ -342,12 +411,33 @@ private:
                  geometry_msgs::PoseWithCovarianceStamped& msg)
   {
     msg.header = acoustic_msg->header;
-    msg.pose.pose.position.x = atof(data[0].c_str());
-    msg.pose.pose.position.y = atof(data[1].c_str());
-    msg.pose.pose.position.z = atof(data[2].c_str());
-    msg.pose.covariance[0] = atof(data[3].c_str());
-    msg.pose.covariance[7] = atof(data[4].c_str());
-    msg.pose.covariance[13] = atof(data[5].c_str());
+    msg.pose.pose.position.x = s2f(data[0].c_str());
+    msg.pose.pose.position.y = s2f(data[1].c_str());
+    msg.pose.pose.position.z = s2f(data[2].c_str());
+    msg.pose.covariance[0] = s2f(data[3].c_str());
+    msg.pose.covariance[7] = s2f(data[4].c_str());
+    msg.pose.covariance[13] = s2f(data[5].c_str());
+  }
+
+  void usbllongParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
+                     const std::vector<std::string> data,
+                     evologics_ros::AcousticModemUSBLLONG& msg)
+  {
+    msg.header = acoustic_msg->header;
+    msg.N = s2f(data[0].c_str());
+    msg.E = s2f(data[1].c_str());
+    msg.U = s2f(data[2].c_str());
+    msg.accuracy = s2f(data[3].c_str());
+  }
+
+  void usblanglesParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
+                     const std::vector<std::string> data,
+                     evologics_ros::AcousticModemUSBLANGLES& msg)
+  {
+    msg.header = acoustic_msg->header;
+    msg.bearing = s2f(data[0].c_str());
+    msg.elevation = s2f(data[1].c_str());
+    msg.accuracy = s2f(data[2].c_str());
   }
 
   void required_topics_check() 
@@ -428,6 +518,10 @@ private:
         pub_depth_raw_ = n.advertise<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1);
       if (t.id == 27)
         pub_ping_ = n.advertise<std_msgs::String>(t.name, 1);
+      if (t.id == 28)
+        pub_usbllong_ = n.advertise<evologics_ros::AcousticModemUSBLLONG>(t.name, 1);
+      if (t.id == 29)
+        pub_usblangles_ = n.advertise<evologics_ros::AcousticModemUSBLANGLES>(t.name, 1);
     }
     else 
     {
@@ -447,7 +541,10 @@ private:
         sub_depth_raw_ = n.subscribe<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1, boost::bind(&Session::poseCallback, this, _1, t));
       if (t.id == 27)
         sub_ping_ = n.subscribe<std_msgs::String>(t.name, 1, boost::bind(&Session::stringCallback, this, _1, t));
-    
+      if (t.id == 28)
+        sub_usbllong_ = n.subscribe<evologics_ros::AcousticModemUSBLLONG>(t.name, 1, boost::bind(&Session::usbllongCallback, this, _1, t));
+      if (t.id == 29)
+        sub_usblangles_ = n.subscribe<evologics_ros::AcousticModemUSBLANGLES>(t.name, 1, boost::bind(&Session::usblanglesCallback, this, _1, t));
     }
   }
    
@@ -491,7 +588,8 @@ private:
       if (s.id == 56)
         srv_usbl_off = n.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
     }
-    else {
+    else 
+    {
       if (s.id == 40) cli_sonar_on = n.serviceClient<std_srvs::Empty>(s.name);
       if (s.id == 41) cli_sonar_off = n.serviceClient<std_srvs::Empty>(s.name);
       if (s.id == 42) cli_bagfile_on = n.serviceClient<std_srvs::Empty>(s.name);
@@ -511,7 +609,19 @@ private:
       if (s.id == 56) cli_usbl_off = n.serviceClient<std_srvs::Empty>(s.name);
     }
     
+  }
 
+  std::string f2s(float p) 
+  {
+    unsigned char* pc = reinterpret_cast<unsigned char*>(&p);
+    return std::string(pc, pc + sizeof(float));
+  }
+
+  float s2f(const std::string& s) 
+  {
+    const unsigned char* pt = reinterpret_cast<const unsigned char*>(s.c_str());
+    const float* d2 = reinterpret_cast<const float*>(pt);
+    return *const_cast<float*>(d2);
   }
 
 
@@ -527,6 +637,8 @@ private:
   ros::Subscriber sub_modem_position_;
   ros::Subscriber sub_depth_raw_;
   ros::Subscriber sub_ping_;
+  ros::Subscriber sub_usbllong_;
+  ros::Subscriber sub_usblangles_;
   ros::Publisher  pub_setpoints_;
   ros::Publisher  pub_emus_bms_;
   ros::Publisher  pub_nav_sts_;
@@ -535,6 +647,8 @@ private:
   ros::Publisher  pub_modem_position_;
   ros::Publisher  pub_depth_raw_;
   ros::Publisher  pub_ping_;
+  ros::Publisher  pub_usbllong_;
+  ros::Publisher  pub_usblangles_;
 
   ros::ServiceServer srv_sonar_on;
   ros::ServiceServer srv_sonar_off;

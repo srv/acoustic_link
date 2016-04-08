@@ -1,4 +1,4 @@
-station_address: 1 #Address 2 for the AUV, 1 for the USBL
+station_address: 2 #Address 2 for the AUV, 1 for the USBL
 topics:
     t0:
        topic_id: 20
@@ -50,13 +50,13 @@ topics:
     #     drop: 1
     t8:
         topic_id: 28
-        topic_name: usbl/usbllong
+        topic_name: usbl/usbllong2
         message_type: evologics_ros/AcousticModemUSBLLONG
         destination_address: 2
         drop: 1
     t9:
         topic_id: 29
-        topic_name: usbl/usblangles
+        topic_name: usbl/usblangles2
         message_type: evologics_ros/AcousticModemUSBLANGLES
         destination_address: 2
         drop: 1
