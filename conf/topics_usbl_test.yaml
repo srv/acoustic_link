@@ -1,131 +1,132 @@
-station_address: 1 #Address 2 for the AUV, 1 for the USBL
-topics:
-    t0:
-       topic_id: 20
-       topic_name: control/thrusters_data2
-       message_type: control/Setpoints
-       destination_address: 1
-       drop: 40
-    t1:
-       topic_id: 21
-       topic_name: safety/emus_bms2
-       message_type: safety/EMUSBMS
-       destination_address: 1
-       drop: 40
-    t2:
-       topic_id: 22
-       topic_name: navigation/nav_sts2
-       message_type: auv_msgs/NavSts
-       destination_address: 1
-       drop: 40
-    t3:
-        topic_id: 23
-        topic_name: slam/loop_closings2
-        message_type: std_msgs/String
-        destination_address: 1
-        drop: 1
-    t4:
-       topic_id: 24
-       topic_name: slam/keyframes2
-       message_type: std_msgs/String
-       destination_address: 1
-       drop: 1
-    # t5:
-    #     topic_id: 25
-    #     topic_name: sensors/modem_raw
-    #     message_type: geometry_msgs/PoseWithCovarianceStamped
-    #     destination_address: 2
-    #     drop: 1
-    # t6:
-    #    topic_id: 26
-    #    topic_name: sensors/depth_raw
-    #    message_type: geometry_msgs/PoseWithCovarianceStamped
-    #    destination_address: 1
-    #    drop: 10
-    # t7:
-    #     topic_id: 27
-    #     topic_name: ping_string
-    #     message_type: std_msgs/String
-    #     destination_address: 2
-    #     drop: 1
-    t8:
-        topic_id: 28
-        topic_name: usbl/usbllong
-        message_type: evologics_ros/AcousticModemUSBLLONG
-        destination_address: 2
-        drop: 1
-    t9:
-        topic_id: 29
-        topic_name: usbl/usblangles
-        message_type: evologics_ros/AcousticModemUSBLANGLES
-        destination_address: 2
-        drop: 1
-services:
-    s0:
-        service_id: 40
-        service_name: sonar_on
-        owner_address: 2
-    s1:
-        service_id: 41
-        service_name: sonar_off
-        owner_address: 2
-    s2:
-        service_id: 42
-        service_name: bagfile_on
-        owner_address: 2
-    s3:
-        service_id: 43
-        service_name: bagfile_off
-        owner_address: 2
-    s4:
-        service_id: 44
-        service_name: trajectory_on
-        owner_address: 2
-    s5:
-        service_id: 45
-        service_name: trajectory_off
-        owner_address: 2
-    s6:
-        service_id: 46
-        service_name: thrusters_on
-        owner_address: 2
-    s7:
-        service_id: 47
-        service_name: thrusters_off
-        owner_address: 2
-    s8:
-        service_id: 48
-        service_name: recording_on
-        owner_address: 2
-    s9:
-        service_id: 49
-        service_name: recording_off
-        owner_address: 2
-    s10:
-        service_id: 50
-        service_name: lights_on
-        owner_address: 2
-    s11:
-        service_id: 51
-        service_name: lights_off
-        owner_address: 2
-    s12:
-        service_id: 52
-        service_name: laser_on
-        owner_address: 2
-    s13:
-        service_id: 53
-        service_name: laser_off
-        owner_address: 2
-    s14:
-        service_id: 54
-        service_name: navigation/reset_navigation
-        owner_address: 2
-    s15:
-        service_id: 55
-        service_name: usbl_on
-        owner_address: 2
-    s16:
-        service_id: 56
-        service_name: usbl_off
-        owner_address: 2
+acoustic_link_usbl:
+    station_address: 1 #Address 2 for the AUV, 1 for the USBL
+    topics:
+        t0:
+           topic_id: 20
+           topic_name: control/thrusters_data2
+           message_type: control/Setpoints
+           destination_address: 1
+           drop: 40
+        t1:
+           topic_id: 21
+           topic_name: safety/emus_bms2
+           message_type: safety/EMUSBMS
+           destination_address: 1
+           drop: 40
+        t2:
+           topic_id: 22
+           topic_name: navigation/nav_sts2
+           message_type: auv_msgs/NavSts
+           destination_address: 1
+           drop: 40
+        t3:
+            topic_id: 23
+            topic_name: slam/loop_closings2
+            message_type: std_msgs/String
+            destination_address: 1
+            drop: 1
+        t4:
+           topic_id: 24
+           topic_name: slam/keyframes2
+           message_type: std_msgs/String
+           destination_address: 1
+           drop: 1
+        # t5:
+        #     topic_id: 25
+        #     topic_name: sensors/modem_raw
+        #     message_type: geometry_msgs/PoseWithCovarianceStamped
+        #     destination_address: 2
+        #     drop: 1
+        # t6:
+        #    topic_id: 26
+        #    topic_name: sensors/depth_raw
+        #    message_type: geometry_msgs/PoseWithCovarianceStamped
+        #    destination_address: 1
+        #    drop: 10
+        # t7:
+        #     topic_id: 27
+        #     topic_name: ping_string
+        #     message_type: std_msgs/String
+        #     destination_address: 2
+        #     drop: 1
+        t8:
+            topic_id: 28
+            topic_name: usbl/usbllong
+            message_type: evologics_ros/AcousticModemUSBLLONG
+            destination_address: 2
+            drop: 1
+        t9:
+            topic_id: 29
+            topic_name: usbl/usblangles
+            message_type: evologics_ros/AcousticModemUSBLANGLES
+            destination_address: 2
+            drop: 1
+    services:
+        s0:
+            service_id: 40
+            service_name: sonar_on
+            owner_address: 2
+        s1:
+            service_id: 41
+            service_name: sonar_off
+            owner_address: 2
+        s2:
+            service_id: 42
+            service_name: bagfile_on
+            owner_address: 2
+        s3:
+            service_id: 43
+            service_name: bagfile_off
+            owner_address: 2
+        s4:
+            service_id: 44
+            service_name: trajectory_on
+            owner_address: 2
+        s5:
+            service_id: 45
+            service_name: trajectory_off
+            owner_address: 2
+        s6:
+            service_id: 46
+            service_name: thrusters_on
+            owner_address: 2
+        s7:
+            service_id: 47
+            service_name: thrusters_off
+            owner_address: 2
+        s8:
+            service_id: 48
+            service_name: recording_on
+            owner_address: 2
+        s9:
+            service_id: 49
+            service_name: recording_off
+            owner_address: 2
+        s10:
+            service_id: 50
+            service_name: lights_on
+            owner_address: 2
+        s11:
+            service_id: 51
+            service_name: lights_off
+            owner_address: 2
+        s12:
+            service_id: 52
+            service_name: laser_on
+            owner_address: 2
+        s13:
+            service_id: 53
+            service_name: laser_off
+            owner_address: 2
+        s14:
+            service_id: 54
+            service_name: navigation/reset_navigation
+            owner_address: 2
+        s15:
+            service_id: 55
+            service_name: usbl_on
+            owner_address: 2
+        s16:
+            service_id: 56
+            service_name: usbl_off
+            owner_address: 2
