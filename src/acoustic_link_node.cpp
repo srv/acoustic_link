@@ -14,6 +14,7 @@
 #include "safety/EMUSBMS.h"
 #include "auv_msgs/NavSts.h"
 #include "std_msgs/String.h"
+#include "std_msgs/Header.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include "evologics_ros/AcousticModemPayload.h"
 #include "evologics_ros/AcousticModemUSBLLONG.h"
@@ -27,10 +28,10 @@
 #include <iomanip> 
 
 // INSERT NEW TOPICS
-// Complete Callback, genericCb, Parser, setup_topic, handles
+// Complete Callback, acousticCallback, Parser, setup_topic, handles
 
 // INSERT NEW SERVICES
-// Complete Callback, genericCb, setup_service, handles
+// Complete Callback, acousticCallback, setup_service, handles
 
 
 int station;
@@ -41,6 +42,7 @@ struct Topic
   std::string name;
   std::string msg;
   int address;
+  bool ack;
   int num; // Position of the topic in the topics vector
   int drop;
   int counter;
@@ -52,6 +54,8 @@ struct Service
   std::string name;
   std::string msg;
   int address;
+  bool ack;
+
 };
 
 std::vector<Topic> topics;
@@ -67,18 +71,18 @@ public:
 
   }
 
-  void start()
+  void start() // TODO: Send to the constructor
   {
     ROS_INFO("Starting session.");
 
-    instant_sub_ = n.subscribe<evologics_ros::AcousticModemPayload>("im/in", 1, &Session::genericCb, this);
+    instant_sub_ = n.subscribe<evologics_ros::AcousticModemPayload>("im/in", 1, &Session::acousticCallback, this);
     instant_pub_ = n.advertise<evologics_ros::AcousticModemPayload>("im/out", 1);
 
     // List the required topics
     required_topics_check();
   }
 
-  bool dropTopic(const Topic t)
+  bool dropTopic(const Topic& t)
   {
     //ROS_INFO_STREAM("dropTopic: " << topics[t.num].counter << "/" << t.drop);
     if (topics[t.num].counter < t.drop){
@@ -91,57 +95,47 @@ public:
     }
   }
 
+
+  void publish_im(const std_msgs::Header header, const std::vector<std::string>& list, const Topic& t)
+  {
+    evologics_ros::AcousticModemPayload acoustic_msg;
+    acoustic_msg.header = header;
+    acoustic_msg.ack = t.ack;
+    acoustic_msg.address = t.address;
+    acoustic_msg.payload = boost::algorithm::join(list, ";");
+
+    ROS_INFO_STREAM("Size: " << acoustic_msg.payload.size());
+    if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
+    else ROS_WARN("Payload size bigger than expected: max 64");
+  }
+
 //CALLBACKS
-  void setpointsCallback(const control::Setpoints::ConstPtr& msg, const Topic t)
+  void setpointsCallback(const control::Setpoints::ConstPtr& msg, const Topic& t)
   {
     if (dropTopic(t)) return;
-
     ROS_INFO("SUB: setpoints");
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
     list.push_back(f2s((float)msg->setpoints[0]));
     list.push_back(f2s((float)msg->setpoints[1]));
     list.push_back(f2s((float)msg->setpoints[2]));
-
-
-    
-    evologics_ros::AcousticModemPayload acoustic_msg;
-    acoustic_msg.header = msg->header;
-    acoustic_msg.ack = true;
-    acoustic_msg.address = t.address;
-
-    acoustic_msg.payload = boost::algorithm::join(list, ";");
-    
-    publish_im(acoustic_msg);
+    publish_im(msg->header, list, t);
   }
 
-  void emus_bmsCallback(const safety::EMUSBMS::ConstPtr& msg, const Topic t)
+  void emus_bmsCallback(const safety::EMUSBMS::ConstPtr& msg, const Topic& t)
   {
     if (dropTopic(t)) return;
     ROS_INFO("SUB: emus_bms");
-    evologics_ros::AcousticModemPayload acoustic_msg;
-    acoustic_msg.header = msg->header;
-    acoustic_msg.ack = true;
-    acoustic_msg.address = t.address;
-
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
     list.push_back(f2s((float)msg->stateOfCharge));
-    acoustic_msg.payload = boost::algorithm::join(list, ";");
-    
-    publish_im(acoustic_msg);
+    publish_im(msg->header, list, t);
   }
 
-  void nav_stsCallback(const auv_msgs::NavSts::ConstPtr& msg, const Topic t)
+  void nav_stsCallback(const auv_msgs::NavSts::ConstPtr& msg, const Topic& t)
   {
     if (dropTopic(t)) return;
     ROS_INFO("SUB: nav_sts");
-    evologics_ros::AcousticModemPayload acoustic_msg;
-    acoustic_msg.header = msg->header;
-    
-    acoustic_msg.ack = true;
-    acoustic_msg.address = t.address;
-    ROS_INFO_STREAM("NED1: " << msg->position.north << "\t " << msg->position.east << "\t " << msg->position.depth);
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
     list.push_back(f2s((float)msg->global_position.latitude));
@@ -150,37 +144,31 @@ public:
     list.push_back(f2s((float)msg->position.east));
     list.push_back(f2s((float)msg->position.depth));
     list.push_back(f2s((float)msg->altitude));
-    acoustic_msg.payload = boost::algorithm::join(list, ";");
-    publish_im(acoustic_msg);
+    publish_im(msg->header, list, t);
   }
 
-  void stringCallback(const std_msgs::String::ConstPtr& msg, const Topic t)
+  void stringCallback(const std_msgs::String::ConstPtr& msg, const Topic& t)
   {
     if (dropTopic(t)) return;
     ROS_INFO("SUB: string");
-    evologics_ros::AcousticModemPayload acoustic_msg;
-    acoustic_msg.header.stamp = ros::Time::now();
-    acoustic_msg.ack = true;
-    acoustic_msg.address = t.address;
-
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
     list.push_back(msg->data);
+    evologics_ros::AcousticModemPayload acoustic_msg;
+
+    acoustic_msg.ack = t.ack;
+    acoustic_msg.address = t.address;
     acoustic_msg.payload = boost::algorithm::join(list, ";");
 
-    publish_im(acoustic_msg);
+    ROS_INFO_STREAM("Size: " << acoustic_msg.payload.size());
+    if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
+    else ROS_WARN("Payload size bigger than expected: max 64");
   }
 
-
-  void poseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg, const Topic t)
+  void poseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg, const Topic& t)
   {
     if (dropTopic(t)) return;
     ROS_INFO("SUB: pose");
-    evologics_ros::AcousticModemPayload acoustic_msg;
-    acoustic_msg.header = msg->header;
-    acoustic_msg.ack = true;
-    acoustic_msg.address = t.address;
-
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
     list.push_back(f2s((float)msg->pose.pose.position.x));
@@ -189,74 +177,48 @@ public:
     list.push_back(f2s((float)msg->pose.covariance[0]));
     list.push_back(f2s((float)msg->pose.covariance[7]));
     list.push_back(f2s((float)msg->pose.covariance[14]));
-    acoustic_msg.payload = boost::algorithm::join(list, ";");
- 
-    publish_im(acoustic_msg);
+    publish_im(msg->header, list, t);
   }
 
-  bool empty_srvCallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response, const Service s)
-  {
-    ROS_INFO("SUB: empty_srv");
-    evologics_ros::AcousticModemPayload acoustic_msg;
-    acoustic_msg.header.stamp = ros::Time::now();
-    acoustic_msg.ack = true;
-    acoustic_msg.address = s.address;
-    acoustic_msg.payload = boost::lexical_cast<std::string>(s.id);
-    
-    instant_pub_.publish(acoustic_msg); 
-  }
-
-  void publish_im(const evologics_ros::AcousticModemPayload& acoustic_msg)
-  {
-    ROS_INFO_STREAM("Size: " << acoustic_msg.payload.size());
-    if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
-    else ROS_WARN("Payload size bigger than expected: max 64");
-  }
-
-  void usbllongCallback(const evologics_ros::AcousticModemUSBLLONG::ConstPtr& msg, const Topic t)
+  void usbllongCallback(const evologics_ros::AcousticModemUSBLLONG::ConstPtr& msg, const Topic& t)
   {
     if (dropTopic(t)) return;
     ROS_INFO("SUB: usbllong");
-    evologics_ros::AcousticModemPayload acoustic_msg;
-    acoustic_msg.header = msg->header;
-    acoustic_msg.ack = true;
-    acoustic_msg.address = t.address;
-
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
     list.push_back(f2s((float)msg->N));
     list.push_back(f2s((float)msg->E));
     list.push_back(f2s((float)msg->U));
     list.push_back(f2s((float)msg->accuracy));
-
-    acoustic_msg.payload = boost::algorithm::join(list, ";");
- 
-    publish_im(acoustic_msg);
+    publish_im(msg->header, list, t);
   }
 
-  void usblanglesCallback(const evologics_ros::AcousticModemUSBLANGLES::ConstPtr& msg, const Topic t)
+  void usblanglesCallback(const evologics_ros::AcousticModemUSBLANGLES::ConstPtr& msg, const Topic& t)
   {
     if (dropTopic(t)) return;
     ROS_INFO("SUB: usblangles");
-    evologics_ros::AcousticModemPayload acoustic_msg;
-    acoustic_msg.header = msg->header;
-    acoustic_msg.ack = true;
-    acoustic_msg.address = t.address;
-
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id)); 
     list.push_back(f2s((float)msg->bearing));
     list.push_back(f2s((float)msg->elevation));
     list.push_back(f2s((float)msg->accuracy));
+    publish_im(msg->header, list, t);
+  }
 
-    acoustic_msg.payload = boost::algorithm::join(list, ";");
- 
-    publish_im(acoustic_msg);
+  bool empty_srvCallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response, const Service& s)
+  {
+    ROS_INFO("SUB: empty_srv");
+    std::vector<std::string> list;
+    list.push_back(boost::lexical_cast<std::string>(s.id)); 
+
+    evologics_ros::AcousticModemPayload acoustic_msg;
+    acoustic_msg.ack = s.ack;
+    acoustic_msg.address = s.address;
+    instant_pub_.publish(acoustic_msg);
   }
 
 private:
-  // EDIT for new topics
-  void genericCb(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg) 
+  void acousticCallback(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg) 
   {
     // Extract message
     std::string payload = acoustic_msg->payload;
@@ -365,9 +327,10 @@ private:
   }
 
   void setpointsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
-                      const std::vector<std::string> data,
+                      const std::vector<std::string>& data,
                       control::Setpoints& msg)
   {
+    ROS_INFO("Parsing Setpoints");
     msg.header = acoustic_msg->header;
     msg.setpoints.resize(data.size());
     msg.setpoints[0] = s2f(data[0].c_str());
@@ -376,17 +339,19 @@ private:
   }
 
   void emus_bmsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
-                     const std::vector<std::string> data,
+                     const std::vector<std::string>& data,
                      safety::EMUSBMS& msg)
   {
+    ROS_INFO("Parsing Emusbms");
     msg.header = acoustic_msg->header;
     msg.stateOfCharge = s2f(data[0].c_str());
   }
 
   void nav_stsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
-                    const std::vector<std::string> data,
+                    const std::vector<std::string>& data,
                     auv_msgs::NavSts& msg)
   {
+    ROS_INFO("Parsing Nav_sts");
     msg.header = acoustic_msg->header;
     msg.global_position.latitude = s2f(data[0].c_str());
     msg.global_position.longitude = s2f(data[1].c_str());
@@ -394,22 +359,21 @@ private:
     msg.position.east = s2f(data[3].c_str());
     msg.position.depth = s2f(data[4].c_str());
     msg.altitude = s2f(data[5].c_str());
-
-    ROS_INFO_STREAM("NED2: " << msg.position.north << "\t " << msg.position.east << "\t " << msg.position.depth);
   }
 
   void stringParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
-                   const std::vector<std::string> data,
+                   const std::vector<std::string>& data,
                    std_msgs::String& msg)
   { 
-    //msg.header = acoustic_msg->header.stamp;
+    ROS_INFO("Parsing String");
     msg.data = data[0].c_str();
   }
 
   void poseParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
-                 const std::vector<std::string> data,
+                 const std::vector<std::string>& data,
                  geometry_msgs::PoseWithCovarianceStamped& msg)
   {
+    ROS_INFO("Parsing Pose");
     msg.header = acoustic_msg->header;
     msg.pose.pose.position.x = s2f(data[0].c_str());
     msg.pose.pose.position.y = s2f(data[1].c_str());
@@ -420,9 +384,10 @@ private:
   }
 
   void usbllongParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
-                     const std::vector<std::string> data,
+                     const std::vector<std::string>& data,
                      evologics_ros::AcousticModemUSBLLONG& msg)
   {
+    ROS_INFO("Parsing Usblong");
     msg.header = acoustic_msg->header;
     msg.N = s2f(data[0].c_str());
     msg.E = s2f(data[1].c_str());
@@ -431,9 +396,10 @@ private:
   }
 
   void usblanglesParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
-                     const std::vector<std::string> data,
+                     const std::vector<std::string>& data,
                      evologics_ros::AcousticModemUSBLANGLES& msg)
   {
+    ROS_INFO("Parsing Usblangles");
     msg.header = acoustic_msg->header;
     msg.bearing = s2f(data[0].c_str());
     msg.elevation = s2f(data[1].c_str());
@@ -458,7 +424,7 @@ private:
     else ROS_WARN("Failed to establish the SERVICE connections dictated by require parameter.");
   }
 
-  void fill_info(const std::string param_name) 
+  void fill_info(const std::string& param_name) 
   {
     ROS_INFO("fill_info");
     XmlRpc::XmlRpcValue param_list;
@@ -477,27 +443,28 @@ private:
         t.name = (std::string)data["topic_name"];
         t.msg = (std::string)data["message_type"];
         t.address = (int)data["destination_address"];
+        t.ack = (bool)data["acknowledgement"];
         t.num = topics.size();
         t.drop = (int)data["drop"];
         t.counter = t.drop;
         topics.push_back(t);
         setup_topic(t);
       }
-      else{
+      else
+      {
         Service s; // Struct
         s.id = (int)data["service_id"];
         s.name = (std::string)data["service_name"];
         s.msg = "std_srvs/Empty"; //Introduce other kind of services if necessary
         s.address = (int)data["owner_address"];
-        //services.push_back(s);
+        s.ack = false;
         setup_service(s);
       }
-      
     }
   }
 
   // EDIT for new topics
-  void setup_topic(const Topic t) 
+  void setup_topic(const Topic& t) 
   {
     ROS_INFO("setup_topic");
     if (t.address == station)
@@ -548,7 +515,7 @@ private:
     }
   }
    
-  void setup_service(const Service s) 
+  void setup_service(const Service& s) 
   {
     //, All services are Empty
     if (s.address == station)

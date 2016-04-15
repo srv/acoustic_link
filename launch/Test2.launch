@@ -7,7 +7,7 @@
 	
 	
   <!-- SIMULATION -->
-    <include file="$(find turbot_configurations)/launch/simulation.launch">
+    <include file="$(find turbot)/launch/simulation.launch">
       <arg name="enableImu"   value="true"/>
       <arg name="enableDepth" value="true"/>
       <arg name="enableDvl"   value="true"/>
@@ -29,9 +29,9 @@
 		<remap from="/im/out" to="/modem/im/out"/>
 	</node>
 
-	<!-- USBLLONG TO SENSORS/MODEM_RAW -->
+	<!-- USBLLONG TO SENSORS/MODEM_RAW 
  	<node pkg="usbl_position" name="usbl_position" type="usbl_position_node" output="screen">
  		<remap from="/usbl/usbllong" to="/usbl/usbllong2"/>
  		<remap from="/usbl/usblangles" to="/usbl/usblangles2"/>
-	</node>
+	</node> -->
 </launch>
