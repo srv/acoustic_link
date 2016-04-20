@@ -27,14 +27,13 @@
 #include <vector>
 #include <iomanip> 
 
-// INSERT NEW TOPICS
+// INSERT NEW topics_
 // Complete Callback, acousticCallback, Parser, setup_topic, handles
 
 // INSERT NEW SERVICES
 // Complete Callback, acousticCallback, setup_service, handles
 
 
-int station;
 
 struct Topic
 {
@@ -43,7 +42,7 @@ struct Topic
   std::string msg;
   int address;
   bool ack;
-  int num; // Position of the topic in the topics vector
+  int num; // Position of the topic in the topics_ vector
   int drop;
   int counter;
 };
@@ -58,8 +57,6 @@ struct Service
 
 };
 
-std::vector<Topic> topics;
-//std::vector<Service> services;
 
 
 
@@ -78,19 +75,24 @@ public:
     instant_sub_ = n.subscribe<evologics_ros::AcousticModemPayload>("im/in", 1, &Session::acousticCallback, this);
     instant_pub_ = n.advertise<evologics_ros::AcousticModemPayload>("im/out", 1);
 
-    // List the required topics
+    if (station_= 1) ros::Timer timer = n.createTimer(ros::Duration(0.1), &Session::timerCallback,this); // Only for the USBL
+
+    // List the required topics_
     required_topics_check();
   }
 
+
   bool dropTopic(const Topic& t)
   {
-    //ROS_INFO_STREAM("dropTopic: " << topics[t.num].counter << "/" << t.drop);
-    if (topics[t.num].counter < t.drop){
-      topics[t.num].counter ++;
+    //ROS_INFO_STREAM("dropTopic: " << topics_[t.num].counter << "/" << t.drop);
+    if (topics_[t.num].counter < t.drop)
+    {
+      topics_[t.num].counter ++;
       return true;
     }
-    else {
-      topics[t.num].counter = 1;
+    else 
+    {
+      topics_[t.num].counter = 1;
       return false;
     }
   }
@@ -105,8 +107,26 @@ public:
     acoustic_msg.payload = boost::algorithm::join(list, ";");
 
     ROS_INFO_STREAM("Size: " << acoustic_msg.payload.size());
-    if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
+    if (acoustic_msg.payload.size() <= 64)
+    {
+      instant_pub_.publish(acoustic_msg);
+      send_time_ = ros::Time::now();
+    } 
     else ROS_WARN("Payload size bigger than expected: max 64");
+  }
+
+  void timerCallback(const ros::TimerEvent&)
+  {
+    if (ros::Time::now() - send_time_ > ros::Duration(1))
+    {
+      std_msgs::Header header;
+      header.stamp = ros::Time::now();
+      std::vector<std::string> list;
+      Topic t;
+      t.ack = true;
+      t.address = 2;
+      publish_im(header, list, t);
+    }
   }
 
 //CALLBACKS
@@ -412,11 +432,11 @@ private:
     // Get node address
     XmlRpc::XmlRpcValue param;
     ros::param::get("~station_address", param);
-    station = (int)param;
-    ROS_INFO_STREAM("station: " << station);
+    station_ = (int)param;
+    ROS_INFO_STREAM("station_: " << station_);
 
     // Publishers
-    if (ros::param::has("~topics")) fill_info("~topics");
+    if (ros::param::has("~topics_")) fill_info("~topics_");
     else ROS_WARN("Failed to establish the TOPIC connections dictated by require parameter.");
 
     // Services
@@ -436,7 +456,7 @@ private:
       XmlRpc::XmlRpcValue data = it->second;
       ROS_ASSERT(data.getType() == XmlRpc::XmlRpcValue::TypeStruct);
       
-      if (param_name == "~topics")
+      if (param_name == "~topics_")
       {
         Topic t; // Struct
         t.id = (int)data["topic_id"];
@@ -444,10 +464,10 @@ private:
         t.msg = (std::string)data["message_type"];
         t.address = (int)data["destination_address"];
         t.ack = (bool)data["acknowledgement"];
-        t.num = topics.size();
+        t.num = topics_.size();
         t.drop = (int)data["drop"];
         t.counter = t.drop;
-        topics.push_back(t);
+        topics_.push_back(t);
         setup_topic(t);
       }
       else
@@ -463,11 +483,11 @@ private:
     }
   }
 
-  // EDIT for new topics
+  // EDIT for new topics_
   void setup_topic(const Topic& t) 
   {
     ROS_INFO("setup_topic");
-    if (t.address == station)
+    if (t.address == station_)
     {
       if (t.id == 20)
         pub_setpoints_ = n.advertise<control::Setpoints>(t.name, 1);
@@ -518,7 +538,7 @@ private:
   void setup_service(const Service& s) 
   {
     //, All services are Empty
-    if (s.address == station)
+    if (s.address == station_)
     {
       if (s.id == 40)
         srv_sonar_on = n.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
@@ -595,6 +615,10 @@ private:
   ros::NodeHandle n;
   ros::Subscriber instant_sub_;
   ros::Publisher instant_pub_;
+
+  int station_;
+  std::vector<Topic> topics_;
+  ros::Time send_time_;
 
   ros::Subscriber sub_setpoints_;
   ros::Subscriber sub_emus_bms_;

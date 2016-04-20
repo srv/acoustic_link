@@ -8,20 +8,20 @@ acoustic_link_usbl:
             destination_address: 1
             acknowledgement: False
             drop: 40
-        t1:
-            topic_id: 21
-            topic_name: safety/emus_bms
-            message_type: safety/EMUSBMS
-            destination_address: 1
-            acknowledgement: False
-            drop: 40
-        t2:
-            topic_id: 22
-            topic_name: navigation/nav_sts
-            message_type: auv_msgs/NavSts
-            destination_address: 1
-            acknowledgement: False
-            drop: 40
+        # t1:
+        #     topic_id: 21
+        #     topic_name: safety/emus_bms
+        #     message_type: safety/EMUSBMS
+        #     destination_address: 1
+        #     acknowledgement: False
+        #     drop: 40
+        # t2:
+        #     topic_id: 22
+        #     topic_name: navigation/nav_sts
+        #     message_type: auv_msgs/NavSts
+        #     destination_address: 1
+        #     acknowledgement: False
+        #     drop: 40
         # t3:
         #     topic_id: 23
         #     topic_name: slam/loop_closings
@@ -36,13 +36,13 @@ acoustic_link_usbl:
         #     destination_address: 1
         #     acknowledgement: False
         #     drop: 1
-        # t5:
-        #     topic_id: 25
-        #     topic_name: sensors/modem_raw
-        #     message_type: geometry_msgs/PoseWithCovarianceStamped
-        #     destination_address: 2
-        #     acknowledgement: False
-        #     drop: 1
+        t5:
+            topic_id: 25
+            topic_name: sensors/modem_raw
+            message_type: geometry_msgs/PoseWithCovarianceStamped
+            destination_address: 1
+            acknowledgement: False
+            drop: 1
         # t6:
         #    topic_id: 26
         #    topic_name: sensors/depth_raw
@@ -50,13 +50,13 @@ acoustic_link_usbl:
         #    destination_address: 1
         #     acknowledgement: False
         #    drop: 10
-        # t7:
-        #     topic_id: 27
-        #     topic_name: ping_string
-        #     message_type: std_msgs/String
-        #     destination_address: 2
-        #     acknowledgement: False
-        #     drop: 1
+        t7:
+            topic_id: 27
+            topic_name: position_ping
+            message_type: std_msgs/Float
+            destination_address: 2
+            acknowledgement: True
+            drop: 1
         t8:
             topic_id: 28
             topic_name: usbl/usbllong
