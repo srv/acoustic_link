@@ -1,7 +1,7 @@
 <!-- TEST1: BAGFILE:send usbllong from USBL and create a sensors/modem_raw mesage in the AUV-->
 <launch>
-	<rosparam command="load" file="$(find evologics_ros)/conf/param_usbl.yaml" />
-	<rosparam command="load" file="$(find acoustic_link)/conf/topics_usbl_test.yaml"/>
+	<rosparam command="load" file="$(find turbot)/conf/param_usbl.yaml" />
+	<rosparam command="load" file="$(find turbot)/conf/topics_usbl.yaml"/>
 
 	<!-- USBL -->
     <!-- driver -->
