@@ -1,6 +1,6 @@
 #include "ros/ros.h"
 
-#include <string> 
+#include <string>
 #include <sstream>
 
 #include <boost/bind.hpp>
@@ -25,7 +25,7 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
-#include <iomanip> 
+#include <iomanip>
 
 // INSERT NEW topics_
 // Complete Callback, acousticCallback, Parser, setup_topic, handles
@@ -75,10 +75,10 @@ public:
     instant_sub_ = n.subscribe<evologics_ros::AcousticModemPayload>("im/in", 1, &Session::acousticCallback, this);
     instant_pub_ = n.advertise<evologics_ros::AcousticModemPayload>("im/out", 1);
 
-    if (station_= 1) ros::Timer timer = n.createTimer(ros::Duration(0.1), &Session::timerCallback,this); // Only for the USBL
-
-    // List the required topics_
+    // List the required topics
     required_topics_check();
+
+    if (station_= 1) timer_ = n.createTimer(ros::Duration(0.1), &Session::timerCallback,this);
   }
 
 
@@ -90,7 +90,7 @@ public:
       topics_[t.num].counter ++;
       return true;
     }
-    else 
+    else
     {
       topics_[t.num].counter = 1;
       return false;
@@ -111,7 +111,7 @@ public:
     {
       instant_pub_.publish(acoustic_msg);
       send_time_ = ros::Time::now();
-    } 
+    }
     else ROS_WARN("Payload size bigger than expected: max 64");
   }
 
@@ -122,6 +122,7 @@ public:
       std_msgs::Header header;
       header.stamp = ros::Time::now();
       std::vector<std::string> list;
+      list.push_back("a");
       Topic t;
       t.ack = true;
       t.address = 2;
@@ -135,7 +136,7 @@ public:
     if (dropTopic(t)) return;
     ROS_INFO("SUB: setpoints");
     std::vector<std::string> list;
-    list.push_back(boost::lexical_cast<std::string>(t.id)); 
+    list.push_back(boost::lexical_cast<std::string>(t.id));
     list.push_back(f2s((float)msg->setpoints[0]));
     list.push_back(f2s((float)msg->setpoints[1]));
     list.push_back(f2s((float)msg->setpoints[2]));
@@ -147,7 +148,7 @@ public:
     if (dropTopic(t)) return;
     ROS_INFO("SUB: emus_bms");
     std::vector<std::string> list;
-    list.push_back(boost::lexical_cast<std::string>(t.id)); 
+    list.push_back(boost::lexical_cast<std::string>(t.id));
     list.push_back(f2s((float)msg->stateOfCharge));
     publish_im(msg->header, list, t);
   }
@@ -157,7 +158,7 @@ public:
     if (dropTopic(t)) return;
     ROS_INFO("SUB: nav_sts");
     std::vector<std::string> list;
-    list.push_back(boost::lexical_cast<std::string>(t.id)); 
+    list.push_back(boost::lexical_cast<std::string>(t.id));
     list.push_back(f2s((float)msg->global_position.latitude));
     list.push_back(f2s((float)msg->global_position.longitude));
     list.push_back(f2s((float)msg->position.north));
@@ -172,7 +173,7 @@ public:
     if (dropTopic(t)) return;
     ROS_INFO("SUB: string");
     std::vector<std::string> list;
-    list.push_back(boost::lexical_cast<std::string>(t.id)); 
+    list.push_back(boost::lexical_cast<std::string>(t.id));
     list.push_back(msg->data);
     evologics_ros::AcousticModemPayload acoustic_msg;
 
@@ -181,7 +182,7 @@ public:
     acoustic_msg.payload = boost::algorithm::join(list, ";");
 
     ROS_INFO_STREAM("Size: " << acoustic_msg.payload.size());
-    if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg); 
+    if (acoustic_msg.payload.size() <= 64) instant_pub_.publish(acoustic_msg);
     else ROS_WARN("Payload size bigger than expected: max 64");
   }
 
@@ -190,7 +191,7 @@ public:
     if (dropTopic(t)) return;
     ROS_INFO("SUB: pose");
     std::vector<std::string> list;
-    list.push_back(boost::lexical_cast<std::string>(t.id)); 
+    list.push_back(boost::lexical_cast<std::string>(t.id));
     list.push_back(f2s((float)msg->pose.pose.position.x));
     list.push_back(f2s((float)msg->pose.pose.position.y));
     list.push_back(f2s((float)msg->pose.pose.position.z));
@@ -205,7 +206,7 @@ public:
     if (dropTopic(t)) return;
     ROS_INFO("SUB: usbllong");
     std::vector<std::string> list;
-    list.push_back(boost::lexical_cast<std::string>(t.id)); 
+    list.push_back(boost::lexical_cast<std::string>(t.id));
     list.push_back(f2s((float)msg->N));
     list.push_back(f2s((float)msg->E));
     list.push_back(f2s((float)msg->U));
@@ -218,7 +219,7 @@ public:
     if (dropTopic(t)) return;
     ROS_INFO("SUB: usblangles");
     std::vector<std::string> list;
-    list.push_back(boost::lexical_cast<std::string>(t.id)); 
+    list.push_back(boost::lexical_cast<std::string>(t.id));
     list.push_back(f2s((float)msg->bearing));
     list.push_back(f2s((float)msg->elevation));
     list.push_back(f2s((float)msg->accuracy));
@@ -229,7 +230,7 @@ public:
   {
     ROS_INFO("SUB: empty_srv");
     std::vector<std::string> list;
-    list.push_back(boost::lexical_cast<std::string>(s.id)); 
+    list.push_back(boost::lexical_cast<std::string>(s.id));
 
     evologics_ros::AcousticModemPayload acoustic_msg;
     acoustic_msg.ack = s.ack;
@@ -238,83 +239,83 @@ public:
   }
 
 private:
-  void acousticCallback(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg) 
+  void acousticCallback(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg)
   {
     // Extract message
     std::string payload = acoustic_msg->payload;
 
     std::vector<std::string> data;
     boost::split(data, payload, boost::is_any_of(";"));
-    
+
 
     // Extract topic id
     int id = boost::lexical_cast<int>(data[0]);
     data.erase(data.begin());
-  
-    if (id == 20) 
+
+    if (id == 20)
     {
       control::Setpoints msg;
       setpointsParse(acoustic_msg, data, msg);
       pub_setpoints_.publish(msg);
       ROS_INFO("PUB: thrusters_data");
     }
-    if (id == 21) 
+    if (id == 21)
     {
       safety::EMUSBMS msg;
       emus_bmsParse(acoustic_msg, data, msg);
       pub_emus_bms_.publish(msg);
       ROS_INFO("PUB: emus_bms");
     }
-    if (id == 22) 
+    if (id == 22)
     {
       auv_msgs::NavSts msg;
       nav_stsParse(acoustic_msg, data, msg);
       pub_nav_sts_.publish(msg);
       ROS_INFO("PUB: nav_sts");
     }
-    if (id == 23) 
+    if (id == 23)
     {
       std_msgs::String msg;
       stringParse(acoustic_msg, data, msg);
       pub_loop_closings_.publish(msg);
       ROS_INFO("PUB: loop_closings");
     }
-    if (id == 24) 
+    if (id == 24)
     {
       std_msgs::String msg;
       stringParse(acoustic_msg, data, msg);
       pub_keyframes_.publish(msg);
       ROS_INFO("PUB: keyframes ");
     }
-    if (id == 25) 
+    if (id == 25)
     {
       geometry_msgs::PoseWithCovarianceStamped msg;
       poseParse(acoustic_msg, data, msg);
       pub_modem_position_.publish(msg);
       ROS_INFO("PUB: modem_position");
     }
-    if (id == 26) 
+    if (id == 26)
     {
       geometry_msgs::PoseWithCovarianceStamped msg;
       poseParse(acoustic_msg, data, msg);
       pub_depth_raw_.publish(msg);
       ROS_INFO("PUB: depth_raw");
     }
-    if (id == 27) 
+    if (id == 27)
     {
       std_msgs::String msg;
       stringParse(acoustic_msg, data, msg);
       pub_ping_.publish(msg);
       ROS_INFO("PUB: ping ");
     }
-    if (id == 28) 
+    if (id == 28)
     {
       evologics_ros::AcousticModemUSBLLONG msg;
       usbllongParse(acoustic_msg, data, msg);
       pub_usbllong_.publish(msg);
       ROS_INFO("PUB: usbllong ");
     }
-    if (id == 29) 
+    if (id == 29)
     {
       evologics_ros::AcousticModemUSBLANGLES msg;
       usblanglesParse(acoustic_msg, data, msg);
@@ -322,7 +323,7 @@ private:
       ROS_INFO("PUB: usblangles ");
     }
 
-    if (id >= 40) // Services 
+    if (id >= 40) // Services
     {
       std_srvs::Empty srv;
       if (id == 40) cli_sonar_on.call(srv);
@@ -334,7 +335,7 @@ private:
       if (id == 46) cli_thrusters_on.call(srv);
       if (id == 47) cli_thrusters_off.call(srv);
       if (id == 48) cli_recording_on.call(srv);
-      if (id == 49) cli_recording_off.call(srv);      
+      if (id == 49) cli_recording_off.call(srv);
       if (id == 50) cli_lights_on.call(srv);
       if (id == 51) cli_lights_off.call(srv);
       if (id == 52) cli_laser_on.call(srv);
@@ -346,7 +347,7 @@ private:
     }
   }
 
-  void setpointsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
+  void setpointsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
                       const std::vector<std::string>& data,
                       control::Setpoints& msg)
   {
@@ -358,7 +359,7 @@ private:
     msg.setpoints[2] = s2f(data[2].c_str());
   }
 
-  void emus_bmsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
+  void emus_bmsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
                      const std::vector<std::string>& data,
                      safety::EMUSBMS& msg)
   {
@@ -367,7 +368,7 @@ private:
     msg.stateOfCharge = s2f(data[0].c_str());
   }
 
-  void nav_stsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
+  void nav_stsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
                     const std::vector<std::string>& data,
                     auv_msgs::NavSts& msg)
   {
@@ -381,15 +382,15 @@ private:
     msg.altitude = s2f(data[5].c_str());
   }
 
-  void stringParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
+  void stringParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
                    const std::vector<std::string>& data,
                    std_msgs::String& msg)
-  { 
+  {
     ROS_INFO("Parsing String");
     msg.data = data[0].c_str();
   }
 
-  void poseParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
+  void poseParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
                  const std::vector<std::string>& data,
                  geometry_msgs::PoseWithCovarianceStamped& msg)
   {
@@ -403,7 +404,7 @@ private:
     msg.pose.covariance[13] = s2f(data[5].c_str());
   }
 
-  void usbllongParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
+  void usbllongParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
                      const std::vector<std::string>& data,
                      evologics_ros::AcousticModemUSBLLONG& msg)
   {
@@ -415,7 +416,7 @@ private:
     msg.accuracy = s2f(data[3].c_str());
   }
 
-  void usblanglesParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg, 
+  void usblanglesParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
                      const std::vector<std::string>& data,
                      evologics_ros::AcousticModemUSBLANGLES& msg)
   {
@@ -426,17 +427,17 @@ private:
     msg.accuracy = s2f(data[2].c_str());
   }
 
-  void required_topics_check() 
+  void required_topics_check()
   {
     ROS_INFO("required_topics_check");
     // Get node address
     XmlRpc::XmlRpcValue param;
     ros::param::get("~station_address", param);
     station_ = (int)param;
-    ROS_INFO_STREAM("station_: " << station_);
+    ROS_INFO_STREAM("station: " << station_);
 
     // Publishers
-    if (ros::param::has("~topics_")) fill_info("~topics_");
+    if (ros::param::has("~topics")) fill_info("~topics");
     else ROS_WARN("Failed to establish the TOPIC connections dictated by require parameter.");
 
     // Services
@@ -444,19 +445,19 @@ private:
     else ROS_WARN("Failed to establish the SERVICE connections dictated by require parameter.");
   }
 
-  void fill_info(const std::string& param_name) 
+  void fill_info(const std::string& param_name)
   {
     ROS_INFO("fill_info");
     XmlRpc::XmlRpcValue param_list;
     ros::param::get(param_name, param_list);
     ROS_ASSERT(param_list.getType() == XmlRpc::XmlRpcValue::TypeStruct);
 
-    for (XmlRpc::XmlRpcValue::iterator it = param_list.begin(); it != param_list.end(); it++) 
+    for (XmlRpc::XmlRpcValue::iterator it = param_list.begin(); it != param_list.end(); it++)
     {
       XmlRpc::XmlRpcValue data = it->second;
       ROS_ASSERT(data.getType() == XmlRpc::XmlRpcValue::TypeStruct);
-      
-      if (param_name == "~topics_")
+
+      if (param_name == "~topics")
       {
         Topic t; // Struct
         t.id = (int)data["topic_id"];
@@ -484,7 +485,7 @@ private:
   }
 
   // EDIT for new topics_
-  void setup_topic(const Topic& t) 
+  void setup_topic(const Topic& t)
   {
     ROS_INFO("setup_topic");
     if (t.address == station_)
@@ -510,7 +511,7 @@ private:
       if (t.id == 29)
         pub_usblangles_ = n.advertise<evologics_ros::AcousticModemUSBLANGLES>(t.name, 1);
     }
-    else 
+    else
     {
       if (t.id == 20)
         sub_setpoints_ = n.subscribe<control::Setpoints>(t.name, 1, boost::bind(&Session::setpointsCallback, this, _1, t));
@@ -534,8 +535,8 @@ private:
         sub_usblangles_ = n.subscribe<evologics_ros::AcousticModemUSBLANGLES>(t.name, 1, boost::bind(&Session::usblanglesCallback, this, _1, t));
     }
   }
-   
-  void setup_service(const Service& s) 
+
+  void setup_service(const Service& s)
   {
     //, All services are Empty
     if (s.address == station_)
@@ -575,7 +576,7 @@ private:
       if (s.id == 56)
         srv_usbl_off = n.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
     }
-    else 
+    else
     {
       if (s.id == 40) cli_sonar_on = n.serviceClient<std_srvs::Empty>(s.name);
       if (s.id == 41) cli_sonar_off = n.serviceClient<std_srvs::Empty>(s.name);
@@ -595,16 +596,16 @@ private:
       if (s.id == 55) cli_usbl_on = n.serviceClient<std_srvs::Empty>(s.name);
       if (s.id == 56) cli_usbl_off = n.serviceClient<std_srvs::Empty>(s.name);
     }
-    
+
   }
 
-  std::string f2s(float p) 
+  std::string f2s(float p)
   {
     unsigned char* pc = reinterpret_cast<unsigned char*>(&p);
     return std::string(pc, pc + sizeof(float));
   }
 
-  float s2f(const std::string& s) 
+  float s2f(const std::string& s)
   {
     const unsigned char* pt = reinterpret_cast<const unsigned char*>(s.c_str());
     const float* d2 = reinterpret_cast<const float*>(pt);
@@ -619,6 +620,7 @@ private:
   int station_;
   std::vector<Topic> topics_;
   ros::Time send_time_;
+  ros::Timer timer_;
 
   ros::Subscriber sub_setpoints_;
   ros::Subscriber sub_emus_bms_;
