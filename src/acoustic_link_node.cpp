@@ -105,8 +105,6 @@ public:
     acoustic_msg.ack = t.ack;
     acoustic_msg.address = t.address;
     acoustic_msg.payload = boost::algorithm::join(list, ";");
-
-    ROS_INFO_STREAM("Size: " << acoustic_msg.payload.size());
     if (acoustic_msg.payload.size() <= 64)
     {
       instant_pub_.publish(acoustic_msg);
@@ -117,7 +115,7 @@ public:
 
   void timerCallback(const ros::TimerEvent&)
   {
-    if (ros::Time::now() - send_time_ > ros::Duration(1))
+    if (ros::Time::now() - send_time_ > ros::Duration(2))
     {
       std_msgs::Header header;
       header.stamp = ros::Time::now();
