@@ -216,7 +216,7 @@ protected:
       emus_bmsParse(acoustic_msg, data, msg);
       pub_emus_bms_.publish(msg);
     }
-    if (name == "navigation/nav_sts2")
+    if (name == "navigation/nav_sts")
     {
       auv_msgs::NavSts msg;
       nav_stsParse(acoustic_msg, data, msg);
@@ -371,7 +371,7 @@ protected:
         pub_setpoints_ = n_.advertise<control::Setpoints>(t.name, 1);
       if (t.name == "safety/emus_bms")
         pub_emus_bms_ = n_.advertise<safety::EMUSBMS>(t.name, 1);
-      if (t.name == "navigation/nav_sts2")
+      if (t.name == "navigation/nav_sts")
         pub_nav_sts_ = n_.advertise<auv_msgs::NavSts>(t.name, 1);
       if (t.name == "sensors/modem_delayed")
         pub_modem_delayed_ = n_.advertise<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1);
