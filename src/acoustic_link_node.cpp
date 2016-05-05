@@ -371,13 +371,13 @@ protected:
     if (t.address == station_)
     {
       if (t.name == "control/thrusters_data")
-        pub_setpoints_ = n_.advertise<control::Setpoints>(t.name, 1);
+        pub_setpoints_ = n_.advertise<control::Setpoints>(t.name + "_acoustic", 1);
       if (t.name == "safety/emus_bms")
-        pub_emus_bms_ = n_.advertise<safety::EMUSBMS>(t.name, 1);
+        pub_emus_bms_ = n_.advertise<safety::EMUSBMS>(t.name + "_acoustic", 1);
       if (t.name == "navigation/nav_sts")
-        pub_nav_sts_ = n_.advertise<auv_msgs::NavSts>(t.name, 1);
+        pub_nav_sts_ = n_.advertise<auv_msgs::NavSts>(t.name + "_acoustic", 1);
       if (t.name == "sensors/modem_delayed")
-        pub_modem_delayed_ = n_.advertise<geometry_msgs::PoseWithCovarianceStamped>(t.name, 1);
+        pub_modem_delayed_ = n_.advertise<geometry_msgs::PoseWithCovarianceStamped>(t.name + "_acoustic", 1);
     }
     else
     {
@@ -398,29 +398,29 @@ protected:
     if (s.address == station_)
     {
       if (s.name == "sonar_on")
-        srv_sonar_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_sonar_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "sonar_off")
-        srv_sonar_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_sonar_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "start_recording")
-        srv_start_recording_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_start_recording_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "stop_recording")
-        srv_stop_recording_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_stop_recording_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "trajectory_on")
-        srv_trajectory_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_trajectory_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "trajectory_off")
-        srv_trajectory_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_trajectory_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "thrusters_on")
-        srv_thrusters_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_thrusters_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "thrusters_off")
-        srv_thrusters_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_thrusters_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "lights_on")
-        srv_lights_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_lights_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "lights_off")
-        srv_lights_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_lights_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "laser_on")
-        srv_laser_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_laser_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "laser_off")
-        srv_laser_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name,  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+        srv_laser_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
     }
     else
     {
