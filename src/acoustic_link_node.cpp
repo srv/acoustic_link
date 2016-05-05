@@ -151,6 +151,7 @@ protected:
     list.push_back(f2s((float)msg->position.east));
     list.push_back(f2s((float)msg->position.depth));
     list.push_back(f2s((float)msg->altitude));
+    list.push_back(f2s((float)msg->orientation.yaw));
     publishIm(msg->header, list, t);
   }
 
@@ -275,6 +276,7 @@ protected:
     msg.position.east = s2f(data[3].c_str());
     msg.position.depth = s2f(data[4].c_str());
     msg.altitude = s2f(data[5].c_str());
+    msg.orientation.yaw = s2f(data[6].c_str());
   }
 
   void poseParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
