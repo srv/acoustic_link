@@ -236,10 +236,9 @@ protected:
     if (name == "sonar_off") cli_sonar_off_.call(srv);
     if (name == "start_recording") cli_start_recording_.call(srv);
     if (name == "stop_recording") cli_stop_recording_.call(srv);
-    if (name == "trajectory_on") cli_trajectory_on_.call(srv);
-    if (name == "trajectory_off") cli_trajectory_off_.call(srv);
-    if (name == "thrusters_on") cli_thrusters_on_.call(srv);
-    if (name == "thrusters_off") cli_thrusters_off_.call(srv);
+    if (name == "control/enable_trajectory") cli_trajectory_on_.call(srv);
+    if (name == "control/disable_trajectory") cli_trajectory_off_.call(srv);
+    if (name == "control/disable_thrusters") cli_thrusters_off_.call(srv);
     if (name == "lights_on") cli_lights_on_.call(srv);
     if (name == "lights_off") cli_lights_off_.call(srv);
     if (name == "laser_on") cli_laser_on_.call(srv);
@@ -405,13 +404,11 @@ protected:
         srv_start_recording_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "stop_recording")
         srv_stop_recording_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
-      if (s.name == "trajectory_on")
+      if (s.name == "control/enable_trajectory")
         srv_trajectory_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
-      if (s.name == "trajectory_off")
+      if (s.name == "control/disable_trajectory")
         srv_trajectory_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
-      if (s.name == "thrusters_on")
-        srv_thrusters_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
-      if (s.name == "thrusters_off")
+      if (s.name == "control/disable_thrusters")
         srv_thrusters_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "lights_on")
         srv_lights_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
@@ -428,10 +425,9 @@ protected:
       if (s.name == "sonar_off") cli_sonar_off_ = n_.serviceClient<std_srvs::Empty>(s.name);
       if (s.name == "start_recording") cli_start_recording_ = n_.serviceClient<std_srvs::Empty>(s.name);
       if (s.name == "stop_recording") cli_stop_recording_ = n_.serviceClient<std_srvs::Empty>(s.name);
-      if (s.name == "trajectory_on") cli_trajectory_on_ = n_.serviceClient<std_srvs::Empty>(s.name);
-      if (s.name == "trajectory_off") cli_trajectory_off_ = n_.serviceClient<std_srvs::Empty>(s.name);
-      if (s.name == "thrusters_on") cli_thrusters_on_ = n_.serviceClient<std_srvs::Empty>(s.name);
-      if (s.name == "thrusters_off") cli_thrusters_off_ = n_.serviceClient<std_srvs::Empty>(s.name);
+      if (s.name == "control/enable_trajectory") cli_trajectory_on_ = n_.serviceClient<std_srvs::Empty>(s.name);
+      if (s.name == "control/disable_trajectory") cli_trajectory_off_ = n_.serviceClient<std_srvs::Empty>(s.name);
+      if (s.name == "control/disable_thrusters") cli_thrusters_off_ = n_.serviceClient<std_srvs::Empty>(s.name);
       if (s.name == "lights_on") cli_lights_on_ = n_.serviceClient<std_srvs::Empty>(s.name);
       if (s.name == "lights_off") cli_lights_off_ = n_.serviceClient<std_srvs::Empty>(s.name);
       if (s.name == "laser_on") cli_laser_on_ = n_.serviceClient<std_srvs::Empty>(s.name);
@@ -490,7 +486,6 @@ private:
   ros::ServiceServer srv_stop_recording_;
   ros::ServiceServer srv_trajectory_on_;
   ros::ServiceServer srv_trajectory_off_;
-  ros::ServiceServer srv_thrusters_on_;
   ros::ServiceServer srv_thrusters_off_;
   ros::ServiceServer srv_lights_on_;
   ros::ServiceServer srv_lights_off_;
@@ -504,7 +499,6 @@ private:
   ros::ServiceClient cli_stop_recording_;
   ros::ServiceClient cli_trajectory_on_;
   ros::ServiceClient cli_trajectory_off_;
-  ros::ServiceClient cli_thrusters_on_;
   ros::ServiceClient cli_thrusters_off_;
   ros::ServiceClient cli_lights_on_;
   ros::ServiceClient cli_lights_off_;
