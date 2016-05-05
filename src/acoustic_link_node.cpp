@@ -187,6 +187,9 @@ protected:
     std::vector<std::string> data;
     boost::split(data, payload, boost::is_any_of(";"));
 
+    // Handle empty messages
+    if (data.size() < 2) return;
+
     // Extract topic id
     int id = boost::lexical_cast<int>(data[0]);
     data.erase(data.begin());
