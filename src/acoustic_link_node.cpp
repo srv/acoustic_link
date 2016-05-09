@@ -9,7 +9,6 @@
 #include <boost/algorithm/string.hpp>
 #include <algorithm>
 
-
 #include "control/Setpoints.h"
 #include "safety/EMUSBMS.h"
 #include "auv_msgs/NavSts.h"
@@ -19,7 +18,7 @@
 #include "evologics_ros/AcousticModemUSBLLONG.h"
 #include "evologics_ros/AcousticModemUSBLANGLES.h"
 #include "std_srvs/Empty.h"
-
+#include <safety/RecoveryAction.h>
 
 #include <iostream>
 #include <cstring>
@@ -244,6 +243,12 @@ protected:
     if (name == "lights_off") cli_lights_off_.call(srv);
     if (name == "laser_on") cli_laser_on_.call(srv);
     if (name == "laser_off") cli_laser_off_.call(srv);
+    if (name == "emergency_surface")
+    {
+      safety::RecoveryAction srv;
+      srv.request.error_level = srv.request.EMERGENCY_SURFACE;
+      cli_emergency_surface_.call(srv);
+    }
   }
 
   void setpointsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
@@ -420,6 +425,8 @@ protected:
         srv_laser_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "laser_off")
         srv_laser_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
+      if (s.name == "emergency_surface")
+        srv_emergency_surface_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
     }
     else
     {
@@ -434,8 +441,14 @@ protected:
       if (s.name == "lights_off") cli_lights_off_ = n_.serviceClient<std_srvs::Empty>(s.name);
       if (s.name == "laser_on") cli_laser_on_ = n_.serviceClient<std_srvs::Empty>(s.name);
       if (s.name == "laser_off") cli_laser_off_ = n_.serviceClient<std_srvs::Empty>(s.name);
+      if (s.name == "emergency_surface")
+      {
+        cli_emergency_surface_ = n_.serviceClient<safety::RecoveryAction>("/safety/recovery_action");
+        bool is_available = cli_emergency_surface_.waitForExistence(ros::Duration(10));
+        if (!is_available)
+          ROS_ERROR_STREAM("[" << node_name_ << "]: Waiting for RecoveryAction service to be available.");
+      }
     }
-
   }
 
   std::string f2s(float p)
@@ -493,6 +506,7 @@ private:
   ros::ServiceServer srv_lights_off_;
   ros::ServiceServer srv_laser_on_;
   ros::ServiceServer srv_laser_off_;
+  ros::ServiceServer srv_emergency_surface_;
 
   // Service clients
   ros::ServiceClient cli_sonar_on_;
@@ -506,6 +520,7 @@ private:
   ros::ServiceClient cli_lights_off_;
   ros::ServiceClient cli_laser_on_;
   ros::ServiceClient cli_laser_off_;
+  ros::ServiceClient cli_emergency_surface_;
 
   // Correspondence between ids and names
   IdName id_name_map_;
