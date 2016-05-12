@@ -437,9 +437,9 @@ protected:
       if (s.name == "emergency_surface")
       {
         cli_emergency_surface_ = n_.serviceClient<safety::RecoveryAction>("/safety/recovery_action");
-        bool is_available = cli_emergency_surface_.waitForExistence(ros::Duration(10));
+        bool is_available = cli_emergency_surface_.waitForExistence(ros::Duration(-1));
         if (!is_available)
-          ROS_ERROR_STREAM("[" << node_name_ << "]: Waiting for RecoveryAction service to be available.");
+          ROS_ERROR_STREAM("[" << node_name_ << "]: RecoveryAction service is NOT available.");
       }
     }
   }
