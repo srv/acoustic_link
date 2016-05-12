@@ -110,7 +110,7 @@ protected:
       std_msgs::Header header;
       header.stamp = ros::Time::now();
       std::vector<std::string> list;
-      list.push_back("a");
+      list.push_back(boost::lexical_cast<std::string>(-1));
       Topic t;
       t.ack = true;
       t.address = 2;
@@ -176,6 +176,7 @@ protected:
     evologics_ros::AcousticModemPayload acoustic_msg;
     acoustic_msg.ack = s.ack;
     acoustic_msg.address = s.address;
+    acoustic_msg.payload = boost::algorithm::join(list, ";");
     instant_pub_.publish(acoustic_msg);
   }
 
@@ -187,12 +188,12 @@ protected:
     std::vector<std::string> data;
     boost::split(data, payload, boost::is_any_of(";"));
 
-    // Handle empty messages
-    if (data.size() < 2) return;
-
     // Extract topic id
     int id = boost::lexical_cast<int>(data[0]);
     data.erase(data.begin());
+
+    // Discard ping messages
+    if (id < 0) return;
 
     // Extract the name by id
     std::string name;
@@ -319,8 +320,6 @@ protected:
     ros::param::get(param_name, param_list);
     ROS_ASSERT(param_list.getType() == XmlRpc::XmlRpcValue::TypeStruct);
 
-    int id_counter_topics   = 1;
-    int id_counter_services = 50;
     for (XmlRpc::XmlRpcValue::iterator it = param_list.begin(); it != param_list.end(); it++)
     {
       XmlRpc::XmlRpcValue data = it->second;
@@ -329,7 +328,7 @@ protected:
       if (param_name == "~topics")
       {
         Topic t; // Struct
-        t.id = id_counter_topics;
+        t.id = (int)data["id"];
         t.name = (std::string)data["topic_name"];
         t.address = (int)data["destination_address"];
         t.ack = (bool)data["acknowledgement"];
@@ -340,33 +339,27 @@ protected:
         setup_topic(t);
 
         // Update map
-        IdName::iterator it = id_name_map_.find(id_counter_topics);
+        IdName::iterator it = id_name_map_.find(t.id);
         if (it == id_name_map_.end())
-          id_name_map_.insert(IdName::value_type(id_counter_topics, t.name));
+          id_name_map_.insert(IdName::value_type(t.id, t.name));
         else
           ROS_ERROR_STREAM("[" << node_name_ << "]: Error configuring topic " << t.name);
-
-        // Increase id
-        id_counter_topics++;
       }
       else
       {
         Service s; // Struct
-        s.id = id_counter_services;
+        s.id = (int)data["id"];;
         s.name = (std::string)data["service_name"];
         s.address = (int)data["owner_address"];
         s.ack = false;
         setup_service(s);
 
         // Update map
-        IdName::iterator it = id_name_map_.find(id_counter_services);
+        IdName::iterator it = id_name_map_.find(s.id);
         if (it == id_name_map_.end())
-          id_name_map_.insert(IdName::value_type(id_counter_services, s.name));
+          id_name_map_.insert(IdName::value_type(s.id, s.name));
         else
           ROS_ERROR_STREAM("[" << node_name_ << "]: Error configuring service " << s.name);
-
-        // Increase id
-        id_counter_services++;
       }
     }
   }
@@ -401,7 +394,7 @@ protected:
   void setup_service(const Service& s)
   {
     // All services are Empty
-    if (s.address == station_)
+    if (s.address != station_)
     {
       if (s.name == "sonar_on")
         srv_sonar_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
