@@ -306,11 +306,11 @@ protected:
     station_ = (int)param;
 
     // Publishers
-    if (ros::param::has("~topics")) fillInfo("~topics");
+    if (ros::param::has("/acoustic/topics")) fillInfo("/acoustic/topics");
     else ROS_WARN_STREAM("[" << node_name_ << "]: Failed to establish the TOPIC connections dictated by require parameter.");
 
     // Services
-    if (ros::param::has("~services")) fillInfo("~services");
+    if (ros::param::has("/acoustic/services")) fillInfo("/acoustic/services");
     else ROS_WARN_STREAM("[" << node_name_ << "]: Failed to establish the SERVICE connections dictated by require parameter.");
   }
 
@@ -325,7 +325,7 @@ protected:
       XmlRpc::XmlRpcValue data = it->second;
       ROS_ASSERT(data.getType() == XmlRpc::XmlRpcValue::TypeStruct);
 
-      if (param_name == "~topics")
+      if (param_name == "/acoustic/topics")
       {
         Topic t; // Struct
         t.id = (int)data["id"];
@@ -341,11 +341,14 @@ protected:
         // Update map
         IdName::iterator it = id_name_map_.find(t.id);
         if (it == id_name_map_.end())
+        {
           id_name_map_.insert(IdName::value_type(t.id, t.name));
+          ROS_INFO_STREAM("[" << node_name_ << "]: Setting up topic: " << t.name);
+        }
         else
           ROS_ERROR_STREAM("[" << node_name_ << "]: Error configuring topic " << t.name);
       }
-      else
+      else if (param_name == "/acoustic/services")
       {
         Service s; // Struct
         s.id = (int)data["id"];;
@@ -357,10 +360,15 @@ protected:
         // Update map
         IdName::iterator it = id_name_map_.find(s.id);
         if (it == id_name_map_.end())
+        {
           id_name_map_.insert(IdName::value_type(s.id, s.name));
+          ROS_INFO_STREAM("[" << node_name_ << "]: Setting up service: " << s.name);
+        }
         else
           ROS_ERROR_STREAM("[" << node_name_ << "]: Error configuring service " << s.name);
       }
+      else
+        ROS_ERROR_STREAM("[" << node_name_ << "]: Impossible to parse the parameter " << param_name);
     }
   }
 
