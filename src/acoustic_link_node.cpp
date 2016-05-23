@@ -52,7 +52,8 @@ struct Service
 class Session
 {
 public:
-  Session() {}
+  Session(): n_decimals_(6) 
+  {}
 
   void start() // TODO: Send to the constructor
   {
@@ -124,9 +125,9 @@ protected:
     if (dropTopic(t)) return;
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id));
-    list.push_back(f2s((float)msg->setpoints[0]));
-    list.push_back(f2s((float)msg->setpoints[1]));
-    list.push_back(f2s((float)msg->setpoints[2]));
+    list.push_back(d2s(msg->setpoints[0]));
+    list.push_back(d2s(msg->setpoints[1]));
+    list.push_back(d2s(msg->setpoints[2]));
     publishIm(msg->header, list, t);
   }
 
@@ -135,7 +136,7 @@ protected:
     if (dropTopic(t)) return;
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id));
-    list.push_back(f2s((float)msg->stateOfCharge));
+    list.push_back(d2s((float)msg->stateOfCharge));
     publishIm(msg->header, list, t);
   }
 
@@ -144,13 +145,13 @@ protected:
     if (dropTopic(t)) return;
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id));
-    list.push_back(f2s((float)msg->global_position.latitude));
-    list.push_back(f2s((float)msg->global_position.longitude));
-    list.push_back(f2s((float)msg->position.north));
-    list.push_back(f2s((float)msg->position.east));
-    list.push_back(f2s((float)msg->position.depth));
-    list.push_back(f2s((float)msg->altitude));
-    list.push_back(f2s((float)msg->orientation.yaw));
+    list.push_back(d2s(msg->global_position.latitude));
+    list.push_back(d2s(msg->global_position.longitude));
+    list.push_back(d2s(msg->position.north));
+    list.push_back(d2s(msg->position.east));
+    list.push_back(d2s(msg->position.depth));
+    list.push_back(d2s(msg->altitude));
+    list.push_back(d2s(msg->orientation.yaw));
     publishIm(msg->header, list, t);
   }
 
@@ -159,12 +160,12 @@ protected:
     if (dropTopic(t)) return;
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id));
-    list.push_back(f2s((float)msg->pose.pose.position.x));
-    list.push_back(f2s((float)msg->pose.pose.position.y));
-    list.push_back(f2s((float)msg->pose.pose.position.z));
-    list.push_back(f2s((float)msg->pose.covariance[0]));
-    list.push_back(f2s((float)msg->pose.covariance[7]));
-    list.push_back(f2s((float)msg->pose.covariance[14]));
+    list.push_back(d2s(msg->pose.pose.position.x));
+    list.push_back(d2s(msg->pose.pose.position.y));
+    list.push_back(d2s(msg->pose.pose.position.z));
+    list.push_back(d2s(msg->pose.covariance[0]));
+    list.push_back(d2s(msg->pose.covariance[7]));
+    list.push_back(d2s(msg->pose.covariance[14]));
     publishIm(msg->header, list, t);
   }
 
@@ -188,9 +189,17 @@ protected:
     std::vector<std::string> data;
     boost::split(data, payload, boost::is_any_of(";"));
 
+
+    if (payload.size() == 0)
+    {
+      ROS_WARN_STREAM("[" << node_name_ << "]: Received acoustic message with empty payload");
+      return;
+    }
+
     // Extract topic id
     int id = boost::lexical_cast<int>(data[0]);
     data.erase(data.begin());
+
 
     // Discard ping messages
     if (id < 0) return;
@@ -258,9 +267,9 @@ protected:
   {
     msg.header = acoustic_msg->header;
     msg.setpoints.resize(data.size());
-    msg.setpoints[0] = s2f(data[0].c_str());
-    msg.setpoints[1] = s2f(data[1].c_str());
-    msg.setpoints[2] = s2f(data[2].c_str());
+    msg.setpoints[0] = s2d(data[0].c_str());
+    msg.setpoints[1] = s2d(data[1].c_str());
+    msg.setpoints[2] = s2d(data[2].c_str());
   }
 
   void emus_bmsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
@@ -268,7 +277,7 @@ protected:
                      safety::EMUSBMS& msg)
   {
     msg.header = acoustic_msg->header;
-    msg.stateOfCharge = s2f(data[0].c_str());
+    msg.stateOfCharge = s2d(data[0].c_str());
   }
 
   void nav_stsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
@@ -276,13 +285,13 @@ protected:
                     auv_msgs::NavSts& msg)
   {
     msg.header = acoustic_msg->header;
-    msg.global_position.latitude = s2f(data[0].c_str());
-    msg.global_position.longitude = s2f(data[1].c_str());
-    msg.position.north = s2f(data[2].c_str());
-    msg.position.east = s2f(data[3].c_str());
-    msg.position.depth = s2f(data[4].c_str());
-    msg.altitude = s2f(data[5].c_str());
-    msg.orientation.yaw = s2f(data[6].c_str());
+    msg.global_position.latitude =  s2d(data[0].c_str());
+    msg.global_position.longitude = s2d(data[1].c_str());
+    msg.position.north =            s2d(data[2].c_str());
+    msg.position.east =             s2d(data[3].c_str());
+    msg.position.depth =            s2d(data[4].c_str());
+    msg.altitude =                  s2d(data[5].c_str());
+    msg.orientation.yaw =           s2d(data[6].c_str());
   }
 
   void poseParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
@@ -290,12 +299,12 @@ protected:
                  geometry_msgs::PoseWithCovarianceStamped& msg)
   {
     msg.header = acoustic_msg->header;
-    msg.pose.pose.position.x = s2f(data[0].c_str());
-    msg.pose.pose.position.y = s2f(data[1].c_str());
-    msg.pose.pose.position.z = s2f(data[2].c_str());
-    msg.pose.covariance[0] = s2f(data[3].c_str());
-    msg.pose.covariance[7] = s2f(data[4].c_str());
-    msg.pose.covariance[13] = s2f(data[5].c_str());
+    msg.pose.pose.position.x =  s2d(data[0].c_str());
+    msg.pose.pose.position.y =  s2d(data[1].c_str());
+    msg.pose.pose.position.z =  s2d(data[2].c_str());
+    msg.pose.covariance[0] =    s2d(data[3].c_str());
+    msg.pose.covariance[7] =    s2d(data[4].c_str());
+    msg.pose.covariance[13] =   s2d(data[5].c_str());
   }
 
   void required_topics_check()
@@ -452,18 +461,29 @@ protected:
     }
   }
 
-  std::string f2s(float p)
+  std::string d2s(double p)
   {
-    unsigned char* pc = reinterpret_cast<unsigned char*>(&p);
-    return std::string(pc, pc + sizeof(float));
+    return boost::lexical_cast<std::string>((int)round(p * pow(10, n_decimals_)));
   }
 
-  float s2f(const std::string& s)
+  double s2d(const std::string& s)
   {
-    const unsigned char* pt = reinterpret_cast<const unsigned char*>(s.c_str());
-    const float* d2 = reinterpret_cast<const float*>(pt);
-    return *const_cast<float*>(d2);
+    return boost::lexical_cast<double>(s) / pow(10, n_decimals_);
   }
+
+  // TODO: Not working properly, some conversions are not correct
+  // std::string f2s(float p)
+  // {
+  //   unsigned char* pc = reinterpret_cast<unsigned char*>(&p);
+  //   return std::string(pc, pc + sizeof(float));
+  // }
+
+  // float s2f(const std::string& s)
+  // {
+  //   const unsigned char* pt = reinterpret_cast<const unsigned char*>(s.c_str());
+  //   const float* d2 = reinterpret_cast<const float*>(pt);
+  //   return *const_cast<float*>(d2);
+  // }
 
 private:
 
@@ -525,6 +545,9 @@ private:
 
   // Correspondence between ids and names
   IdName id_name_map_;
+
+  // Number of decimals to send
+  int n_decimals_;
 };
 
 
