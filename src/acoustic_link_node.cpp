@@ -52,7 +52,7 @@ struct Service
 class Session
 {
 public:
-  Session(): n_decimals_(6) 
+  Session(): n_decimals_(6)
   {}
 
   void start() // TODO: Send to the constructor
@@ -244,8 +244,8 @@ protected:
 
     if (name == "sonar_on") cli_sonar_on_.call(srv);
     if (name == "sonar_off") cli_sonar_off_.call(srv);
-    if (name == "start_recording") cli_start_recording_.call(srv);
-    if (name == "stop_recording") cli_stop_recording_.call(srv);
+    if (name == "topic_logger_robot/start_recording") cli_start_recording_.call(srv);
+    if (name == "topic_logger_robot/stop_recording") cli_stop_recording_.call(srv);
     if (name == "control/enable_trajectory") cli_trajectory_on_.call(srv);
     if (name == "control/disable_trajectory") cli_trajectory_off_.call(srv);
     if (name == "control/disable_thrusters") cli_thrusters_off_.call(srv);
@@ -417,9 +417,9 @@ protected:
         srv_sonar_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "sonar_off")
         srv_sonar_off_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
-      if (s.name == "start_recording")
+      if (s.name == "topic_logger_robot/start_recording")
         srv_start_recording_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
-      if (s.name == "stop_recording")
+      if (s.name == "topic_logger_robot/stop_recording")
         srv_stop_recording_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
       if (s.name == "control/enable_trajectory")
         srv_trajectory_on_ = n_.advertiseService<std_srvs::Empty::Request, std_srvs::Empty::Response>(s.name + "_acoustic",  boost::bind(&Session::empty_srvCallback, this, _1, _2, s));
@@ -442,8 +442,8 @@ protected:
     {
       if (s.name == "sonar_on") cli_sonar_on_ = n_.serviceClient<std_srvs::Empty>(s.name);
       if (s.name == "sonar_off") cli_sonar_off_ = n_.serviceClient<std_srvs::Empty>(s.name);
-      if (s.name == "start_recording") cli_start_recording_ = n_.serviceClient<std_srvs::Empty>(s.name);
-      if (s.name == "stop_recording") cli_stop_recording_ = n_.serviceClient<std_srvs::Empty>(s.name);
+      if (s.name == "topic_logger_robot/start_recording") cli_start_recording_ = n_.serviceClient<std_srvs::Empty>(s.name);
+      if (s.name == "topic_logger_robot/stop_recording") cli_stop_recording_ = n_.serviceClient<std_srvs::Empty>(s.name);
       if (s.name == "control/enable_trajectory") cli_trajectory_on_ = n_.serviceClient<std_srvs::Empty>(s.name);
       if (s.name == "control/disable_trajectory") cli_trajectory_off_ = n_.serviceClient<std_srvs::Empty>(s.name);
       if (s.name == "control/disable_thrusters") cli_thrusters_off_ = n_.serviceClient<std_srvs::Empty>(s.name);
