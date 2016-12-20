@@ -52,7 +52,7 @@ struct Service
 class Session
 {
 public:
-  Session(): n_decimals_(6)
+  Session(): n_decimals_(4)
   {}
 
   void start() // TODO: Send to the constructor
@@ -145,12 +145,12 @@ protected:
     if (dropTopic(t)) return;
     std::vector<std::string> list;
     list.push_back(boost::lexical_cast<std::string>(t.id));
-    list.push_back(d2s(msg->global_position.latitude));
-    list.push_back(d2s(msg->global_position.longitude));
     list.push_back(d2s(msg->position.north));
     list.push_back(d2s(msg->position.east));
     list.push_back(d2s(msg->position.depth));
     list.push_back(d2s(msg->altitude));
+    list.push_back(d2s(msg->orientation.roll));
+    list.push_back(d2s(msg->orientation.pitch));
     list.push_back(d2s(msg->orientation.yaw));
     publishIm(msg->header, list, t);
   }
@@ -285,12 +285,12 @@ protected:
                     auv_msgs::NavSts& msg)
   {
     msg.header = acoustic_msg->header;
-    msg.global_position.latitude =  s2d(data[0].c_str());
-    msg.global_position.longitude = s2d(data[1].c_str());
-    msg.position.north =            s2d(data[2].c_str());
-    msg.position.east =             s2d(data[3].c_str());
-    msg.position.depth =            s2d(data[4].c_str());
-    msg.altitude =                  s2d(data[5].c_str());
+    msg.position.north =            s2d(data[0].c_str());
+    msg.position.east =             s2d(data[1].c_str());
+    msg.position.depth =            s2d(data[2].c_str());
+    msg.altitude =                  s2d(data[3].c_str());
+    msg.orientation.roll =          s2d(data[4].c_str());
+    msg.orientation.pitch =         s2d(data[5].c_str());
     msg.orientation.yaw =           s2d(data[6].c_str());
   }
 
