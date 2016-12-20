@@ -129,6 +129,7 @@ protected:
     list.push_back(d2s(msg->setpoints[1]));
     list.push_back(d2s(msg->setpoints[2]));
     publishIm(msg->header, list, t);
+    ROS_INFO_STREAM("[" << node_name_ << "]: Sent thrusters_data");
   }
 
   void emus_bmsCallback(const safety::EMUSBMS::ConstPtr& msg, const Topic& t)
@@ -138,6 +139,7 @@ protected:
     list.push_back(boost::lexical_cast<std::string>(t.id));
     list.push_back(d2s((float)msg->stateOfCharge));
     publishIm(msg->header, list, t);
+    ROS_INFO_STREAM("[" << node_name_ << "]: Sent emus_bms");
   }
 
   void nav_stsCallback(const auv_msgs::NavSts::ConstPtr& msg, const Topic& t)
@@ -153,6 +155,7 @@ protected:
     list.push_back(d2s(msg->orientation.pitch));
     list.push_back(d2s(msg->orientation.yaw));
     publishIm(msg->header, list, t);
+    ROS_INFO_STREAM("[" << node_name_ << "]: Sent nav_sts");
   }
 
   void poseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg, const Topic& t)
@@ -163,10 +166,11 @@ protected:
     list.push_back(d2s(msg->pose.pose.position.x));
     list.push_back(d2s(msg->pose.pose.position.y));
     list.push_back(d2s(msg->pose.pose.position.z));
-    list.push_back(d2s(msg->pose.covariance[0]));
-    list.push_back(d2s(msg->pose.covariance[7]));
-    list.push_back(d2s(msg->pose.covariance[14]));
+    //list.push_back(d2s(msg->pose.covariance[0]));
+    //list.push_back(d2s(msg->pose.covariance[7]));
+    //list.push_back(d2s(msg->pose.covariance[14]));
     publishIm(msg->header, list, t);
+    ROS_INFO_STREAM("[" << node_name_ << "]: Sent pose");
   }
 
   bool empty_srvCallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response, const Service& s)
@@ -179,6 +183,7 @@ protected:
     acoustic_msg.address = s.address;
     acoustic_msg.payload = boost::algorithm::join(list, ";");
     instant_pub_.publish(acoustic_msg);
+    ROS_INFO_STREAM("[" << node_name_ << "]: Service called");
   }
 
   void acousticCallback(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg)
@@ -265,6 +270,7 @@ protected:
                       const std::vector<std::string>& data,
                       control::Setpoints& msg)
   {
+    ROS_INFO_STREAM("[" << node_name_ << "]: Received thrusters_data");
     msg.header = acoustic_msg->header;
     msg.setpoints.resize(data.size());
     msg.setpoints[0] = s2d(data[0].c_str());
@@ -276,6 +282,7 @@ protected:
                      const std::vector<std::string>& data,
                      safety::EMUSBMS& msg)
   {
+    ROS_INFO_STREAM("[" << node_name_ << "]: Received emus_bms");
     msg.header = acoustic_msg->header;
     msg.stateOfCharge = s2d(data[0].c_str());
   }
@@ -284,6 +291,7 @@ protected:
                     const std::vector<std::string>& data,
                     auv_msgs::NavSts& msg)
   {
+    ROS_INFO_STREAM("[" << node_name_ << "]: Received nav_sts");
     msg.header = acoustic_msg->header;
     msg.position.north =            s2d(data[0].c_str());
     msg.position.east =             s2d(data[1].c_str());
@@ -298,6 +306,7 @@ protected:
                  const std::vector<std::string>& data,
                  geometry_msgs::PoseWithCovarianceStamped& msg)
   {
+    ROS_INFO_STREAM("[" << node_name_ << "]: Received pose");
     msg.header = acoustic_msg->header;
     msg.pose.pose.position.x =  s2d(data[0].c_str());
     msg.pose.pose.position.y =  s2d(data[1].c_str());
