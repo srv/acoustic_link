@@ -11,6 +11,7 @@
 
 #include "control/Setpoints.h"
 #include "safety/EMUSBMS.h"
+#include "safety/ComputerData.h"
 #include "auv_msgs/NavSts.h"
 #include "std_msgs/Header.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
@@ -140,6 +141,15 @@ protected:
     publishIm(msg->header, list, t);
   }
 
+  void computer_loggerCallback(const safety::ComputerData::ConstPtr& msg, const Topic& t)
+  {
+    if (dropTopic(t)) return;
+    std::vector<std::string> list;
+    list.push_back(boost::lexical_cast<std::string>(t.id));
+    list.push_back(d2s((float)msg->disk_usage));
+    publishIm(msg->header, list, t);
+  }
+
   void nav_stsCallback(const auv_msgs::NavSts::ConstPtr& msg, const Topic& t)
   {
     if (dropTopic(t)) return;
@@ -229,6 +239,12 @@ protected:
       emus_bmsParse(acoustic_msg, data, msg);
       pub_emus_bms_.publish(msg);
     }
+    if (name == "safety/computer_logger")
+    {
+      safety::ComputerData msg;
+      computer_loggerParse(acoustic_msg, data, msg);
+      pub_computer_logger_.publish(msg);
+    }
     if (name == "navigation/nav_sts")
     {
       auv_msgs::NavSts msg;
@@ -278,6 +294,14 @@ protected:
   {
     msg.header = acoustic_msg->header;
     msg.stateOfCharge = s2d(data[0].c_str());
+  }
+
+  void computer_loggerParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
+                     const std::vector<std::string>& data,
+                     safety::ComputerData& msg)
+  {
+    msg.header = acoustic_msg->header;
+    msg.disk_usage = s2d(data[0].c_str());
   }
 
   void nav_stsParse(const evologics_ros::AcousticModemPayload::ConstPtr& acoustic_msg,
@@ -390,6 +414,8 @@ protected:
         pub_setpoints_ = n_.advertise<control::Setpoints>(t.name + "_acoustic", 1);
       if (t.name == "safety/emus_bms")
         pub_emus_bms_ = n_.advertise<safety::EMUSBMS>(t.name + "_acoustic", 1);
+      if (t.name == "safety/computer_logger")
+        pub_computer_logger_ = n_.advertise<safety::ComputerData>(t.name + "_acoustic", 1);
       if (t.name == "navigation/nav_sts")
         pub_nav_sts_ = n_.advertise<auv_msgs::NavSts>(t.name + "_acoustic", 1);
       if (t.name == "sensors/modem_delayed")
@@ -401,6 +427,8 @@ protected:
         sub_setpoints_ = n_.subscribe<control::Setpoints>(t.name, 1, boost::bind(&Session::setpointsCallback, this, _1, t));
       if (t.name == "safety/emus_bms")
         sub_emus_bms_ = n_.subscribe<safety::EMUSBMS>(t.name, 1, boost::bind(&Session::emus_bmsCallback, this, _1, t));
+      if (t.name == "safety/computer_logger")
+        sub_computer_logger_ = n_.subscribe<safety::ComputerData>(t.name, 1, boost::bind(&Session::computer_loggerCallback, this, _1, t));
       if (t.name == "navigation/nav_sts")
         sub_nav_sts_ = n_.subscribe<auv_msgs::NavSts>(t.name, 1, boost::bind(&Session::nav_stsCallback, this, _1, t));
       if (t.name == "sensors/modem_delayed")
@@ -506,12 +534,14 @@ private:
   // Subscribers
   ros::Subscriber sub_setpoints_;
   ros::Subscriber sub_emus_bms_;
+  ros::Subscriber sub_computer_logger_;
   ros::Subscriber sub_nav_sts_;
   ros::Subscriber sub_modem_delayed_;
 
   // Publishers
   ros::Publisher  pub_setpoints_;
   ros::Publisher  pub_emus_bms_;
+  ros::Publisher  pub_computer_logger_;
   ros::Publisher  pub_nav_sts_;
   ros::Publisher  pub_modem_delayed_;
 
