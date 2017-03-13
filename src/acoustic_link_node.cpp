@@ -34,8 +34,8 @@ struct Topic
   int address;
   bool ack;
   int num; // Position of the topic in the topics_ vector
-  int drop;
-  int counter;
+  ros::Time period;
+  ros::Time time;
 };
 
 struct Service
@@ -75,15 +75,13 @@ protected:
 
   bool dropTopic(const Topic& t)
   {
-    //ROS_INFO_STREAM("dropTopic: " << topics_[t.num].counter << "/" << t.drop);
-    if (topics_[t.num].counter < t.drop)
+    if (ros::Time::now() - topics_[t.num].time < t.period)
     {
-      topics_[t.num].counter ++;
       return true;
-    }
+    } 
     else
     {
-      topics_[t.num].counter = 1;
+      topics_[t.num].time = ros::Time::now();
       return false;
     }
   }
@@ -351,8 +349,8 @@ protected:
         t.address = (int)data["destination_address"];
         t.ack = (bool)data["acknowledgement"];
         t.num = topics_.size();
-        t.drop = (int)data["drop"];
-        t.counter = t.drop;
+        t.period = (int)data["period"];
+        t.time = ros::Time::now();
         topics_.push_back(t);
         setup_topic(t);
 
